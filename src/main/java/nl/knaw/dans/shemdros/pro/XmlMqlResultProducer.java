@@ -23,11 +23,18 @@ import nl.knaw.dans.shemdros.core.ShemdrosException;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Environment consumer that produces mql-results in the xml-format.
+ * 
+ * @author henk van den berg
+ * 
+ */
 public class XmlMqlResultProducer implements EnvConsumer<Void> {
 
 	public static final String DEFAULT_ENCODING = "UTF-8";
 
-	//private static final Logger logger = LoggerFactory.getLogger(XmlMqlResultProducer.class);
+	// private static final Logger logger =
+	// LoggerFactory.getLogger(XmlMqlResultProducer.class);
 
 	private final String encoding;
 	private final XMLStreamWriter out;
@@ -86,14 +93,14 @@ public class XmlMqlResultProducer implements EnvConsumer<Void> {
 		out.writeEndDocument();
 	}
 
-//	private void writeDocType(String nl) throws XMLStreamException {
-//		out.writeCharacters(nl);
-//		out.writeDTD("<!DOCTYPE mql_results [");
-//		out.writeCharacters(nl);
-//		out.writeDTD("<!ELEMENT mql_results (mql_result)* >");
-//		out.writeCharacters(nl);
-//		out.writeDTD("]>");
-//	}
+	// private void writeDocType(String nl) throws XMLStreamException {
+	// out.writeCharacters(nl);
+	// out.writeDTD("<!DOCTYPE mql_results [");
+	// out.writeCharacters(nl);
+	// out.writeDTD("<!ELEMENT mql_results (mql_result)* >");
+	// out.writeCharacters(nl);
+	// out.writeDTD("]>");
+	// }
 
 	private void writeRootElement(EmdrosEnv env, String nl, String ident) throws XMLStreamException, EmdrosException {
 		out.writeCharacters(nl);
@@ -148,17 +155,17 @@ public class XmlMqlResultProducer implements EnvConsumer<Void> {
 		out.writeCharacters(ident);
 		out.writeStartElement("straw");
 		StrawConstIterator sci = straw.const_iterator();
-		while (sci.hasNext())
-		{
+		while (sci.hasNext()) {
 			MatchedObject mo = sci.next();
 			writeMatchedObject(mo, nl, ident + ws);
 		}
 		out.writeCharacters(nl);
 		out.writeCharacters(ident);
-		out.writeEndElement();		
+		out.writeEndElement();
 	}
 
-	private void writeMatchedObject(MatchedObject mo, String nl, String ident) throws XMLStreamException, EmdrosException {
+	private void writeMatchedObject(MatchedObject mo, String nl, String ident) throws XMLStreamException,
+			EmdrosException {
 		out.writeCharacters(nl);
 		out.writeCharacters(ident);
 		out.writeStartElement("matched_object");
@@ -168,53 +175,52 @@ public class XmlMqlResultProducer implements EnvConsumer<Void> {
 		if (!StringUtils.isBlank(marks))
 			out.writeAttribute("marks", marks);
 		out.writeAttribute("id_d", "" + mo.getID_D());
-		
+
 		SetOfMonads som = mo.getMonads();
 		writeMonatSet(som, nl, ident + ws);
-		
+
 		// featureList is always empty, even when mo.getNoOfEMdFValues() != 0.
-//		StringList featureList = mo.getFeatureList();
-//		if (!featureList.isEmpty())
-//		{
-//			writeFeatures(mo, nl, ident + ws);
-//		}
-		
+		// StringList featureList = mo.getFeatureList();
+		// if (!featureList.isEmpty())
+		// {
+		// writeFeatures(mo, nl, ident + ws);
+		// }
+
 		long noev = mo.getNoOfEMdFValues();
-		if (noev > 0)
-		{
+		if (noev > 0) {
 			writeFeatures(mo, nl, ident + ws);
 		}
-		
-		if (!mo.sheafIsEmpty())
-		{
+
+		if (!mo.sheafIsEmpty()) {
 			Sheaf sheaf = mo.getSheaf();
 			writeSheaf(sheaf, nl, ident + ws);
 		}
-		
+
 		out.writeCharacters(nl);
 		out.writeCharacters(ident);
 		out.writeEndElement();
-//		
-//		StringList sl = mo.getFeatureList();
-//		
-//		//long noev = mo.getNoOfEMdFValues();
-//		System.out.println("NoOfEMdFValues=" + noev + " featurelist.isEmpty=" + sl.isEmpty());
-//		
-//		for (int i = 0; i < noev; i++)
-//		{
-//			
-//			EMdFValue ev = mo.getEMdFValue(i);
-//			System.err.println(i + " EMdFValue=" + ev);
-//			System.err.println("\tasString=" + mo.getFeatureAsString(i));
-//			System.err.println("\tid_d=" + ev.getID_D());
-//			System.err.println("\tenum=" + ev.getEnum());
-//			System.err.println("\tint=" + ev.getInt());
-//			
-//			//System.err.println("\tstring=" + ev.getString());
-//			//System.err.println("\tintegerList=" + ev.getIntegerList());
-//			System.err.println("\tkind=" + ev.getKind().toString());
-//			//System.err.println("\tsom=" + ev.getSOM().toString());
-//		}
+		//
+		// StringList sl = mo.getFeatureList();
+		//
+		// //long noev = mo.getNoOfEMdFValues();
+		// System.out.println("NoOfEMdFValues=" + noev + " featurelist.isEmpty="
+		// + sl.isEmpty());
+		//
+		// for (int i = 0; i < noev; i++)
+		// {
+		//
+		// EMdFValue ev = mo.getEMdFValue(i);
+		// System.err.println(i + " EMdFValue=" + ev);
+		// System.err.println("\tasString=" + mo.getFeatureAsString(i));
+		// System.err.println("\tid_d=" + ev.getID_D());
+		// System.err.println("\tenum=" + ev.getEnum());
+		// System.err.println("\tint=" + ev.getInt());
+		//
+		// //System.err.println("\tstring=" + ev.getString());
+		// //System.err.println("\tintegerList=" + ev.getIntegerList());
+		// System.err.println("\tkind=" + ev.getKind().toString());
+		// //System.err.println("\tsom=" + ev.getSOM().toString());
+		// }
 	}
 
 	private void writeFeatures(MatchedObject mo, String nl, String ident) throws XMLStreamException, EmdrosException {
@@ -222,8 +228,7 @@ public class XmlMqlResultProducer implements EnvConsumer<Void> {
 		out.writeCharacters(ident);
 		out.writeStartElement("features");
 		long noev = mo.getNoOfEMdFValues();
-		for (int i = 0; i < noev; i++)
-		{
+		for (int i = 0; i < noev; i++) {
 			writeFeature(i, mo, nl, ident + ws);
 		}
 		out.writeCharacters(nl);
@@ -231,14 +236,15 @@ public class XmlMqlResultProducer implements EnvConsumer<Void> {
 		out.writeEndElement();
 	}
 
-	private void writeFeature(int i, MatchedObject mo, String nl, String ident) throws XMLStreamException, EmdrosException {
+	private void writeFeature(int i, MatchedObject mo, String nl, String ident) throws XMLStreamException,
+			EmdrosException {
 		out.writeCharacters(nl);
 		out.writeCharacters(ident);
 		out.writeStartElement("feature");
 		EMdFValue ev = mo.getEMdFValue(i);
-		//out.writeAttribute("feature_name", "??duno??");
+		// out.writeAttribute("feature_name", "??duno??");
 		out.writeAttribute("feature_type", ev.getKind().toString());
-		//out.writeAttribute("enum_type", "??duno??");
+		// out.writeAttribute("enum_type", "??duno??");
 		out.writeCharacters(mo.getFeatureAsString(i));
 		out.writeEndElement();
 	}
@@ -247,7 +253,7 @@ public class XmlMqlResultProducer implements EnvConsumer<Void> {
 		out.writeCharacters(nl);
 		out.writeCharacters(ident);
 		out.writeStartElement("monad_set");
-		writeMse(som, nl, ident + ws);		
+		writeMse(som, nl, ident + ws);
 		out.writeCharacters(nl);
 		out.writeCharacters(ident);
 		out.writeEndElement();
@@ -259,7 +265,7 @@ public class XmlMqlResultProducer implements EnvConsumer<Void> {
 		out.writeEmptyElement("mse");
 		out.writeAttribute("first", "" + som.first());
 		out.writeAttribute("last", "" + som.last());
-		
+
 	}
 
 	public void close() {
