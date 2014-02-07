@@ -1,0 +1,11 @@
+select all objects where
+
+[clause
+   [phrase phrase_function = Objc
+      [word as w1 FOCUS first and last part_of_speech = noun]
+   ]
+   [phrase phrase_function = Cmpl
+      [word FOCUS lexeme_utf8 = w1.lexeme_utf8]
+  ]
+]
+
