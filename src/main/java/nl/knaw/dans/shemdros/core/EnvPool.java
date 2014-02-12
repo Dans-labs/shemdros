@@ -31,6 +31,11 @@ public class EnvPool
     private String password = "";
     private String initialDB = "/data/emdros/wivu/s3/bhs3";
 
+    static
+    {
+        System.load(DEFAULT_LIBRARY_PATH);
+    }
+
     public static EnvPool instance()
     {
         if (INSTANCE == null)
@@ -40,7 +45,7 @@ public class EnvPool
         return INSTANCE;
     }
 
-    protected static void reset()
+    public static void reset()
     {
         INSTANCE = null;
     }
@@ -51,7 +56,7 @@ public class EnvPool
         {
             libraryPath = DEFAULT_LIBRARY_PATH;
         }
-        System.load(libraryPath);
+
         logger.info("Loaded dynamic library at path '{}'.", libraryPath);
         pool = Collections.synchronizedList(new ArrayList<EnvWrapper>());
         INSTANCE = this;
@@ -105,6 +110,14 @@ public class EnvPool
         }
     }
 
+    public int size()
+    {
+        synchronized (pool)
+        {
+            return pool.size();
+        }
+    }
+
     public int getOutputKind()
     {
         return outputKind;
@@ -130,11 +143,19 @@ public class EnvPool
         return backendKind;
     }
 
+    /**
+     * Backend kind Used to distinguish among backends. enum eBackendKind { kBackendNone = 0, < No
+     * backend selected kPostgreSQL = 1, < PostgreSQL kMySQL = 2, < MySQL kSQLite2 = 3, < SQLite 2.X.X
+     * kSQLite3 = 4 < SQLite 3.X.X };
+     */
     public void setBackendKind(int backendKind)
     {
         this.backendKind = backendKind;
     }
 
+    /**
+     * @return
+     */
     public String getHostname()
     {
         return hostname;
