@@ -6,10 +6,8 @@ import static org.junit.Assert.*;
 import java.io.File;
 
 import jemdros.EmdrosEnv;
-import nl.knaw.dans.shemdros.core.EnvPool;
-import nl.knaw.dans.shemdros.core.EnvWrapper;
-import nl.knaw.dans.shemdros.core.ShemdrosCompileException;
-import nl.knaw.dans.shemdros.core.ShemdrosException;
+import jemdros.Sheaf;
+import nl.knaw.dans.shemdros.integration.EnvironmentTest;
 import nl.knaw.dans.shemdros.integration.IntegrationTest;
 
 import org.junit.AfterClass;
@@ -20,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Category(IntegrationTest.class)
-public class EnvWrapperTest
+public class EnvWrapperTest extends EnvironmentTest
 {
 
     private static final Logger logger = LoggerFactory.getLogger(EnvWrapperTest.class);
@@ -40,7 +38,9 @@ public class EnvWrapperTest
     @Test(expected = ShemdrosException.class)
     public void testConfigurationException() throws Exception
     {
-        EnvPool.instance().setBackendKind(1);
+        Database db = new Database();
+        db.setBackendKind(1);
+        EnvPool.instance().setDatabase(db);
         try
         {
             EnvPool.instance().getPooledEnvironment();
@@ -82,7 +82,9 @@ public class EnvWrapperTest
     @Test(expected = ShemdrosException.class)
     public void testStringQueryDatabaseException() throws Exception
     {
-        EnvPool.instance().setInitialDB("foo/bar");
+        Database db = new Database();
+        db.setInitialDB("foo/bar");
+        EnvPool.instance().setDatabase(db);
         EnvWrapper wrapper = EnvPool.instance().getPooledEnvironment();
         try
         {
@@ -125,7 +127,9 @@ public class EnvWrapperTest
     @Test(expected = ShemdrosException.class)
     public void testFileQueryDatabaseException() throws Exception
     {
-        EnvPool.instance().setInitialDB("foo/bar");
+        Database db = new Database();
+        db.setInitialDB("foo/bar");
+        EnvPool.instance().setDatabase(db);
         EnvWrapper wrapper = EnvPool.instance().getPooledEnvironment();
         try
         {
@@ -137,6 +141,42 @@ public class EnvWrapperTest
             throw e;
         }
         fail("No exception was thrown");
+    }
+    
+    @Test
+    public void testSheafextraction() throws Exception
+    {
+        EnvWrapper wrapper = EnvPool.instance().getPooledEnvironment();
+        EmdrosEnv env = wrapper.getEnv();
+        wrapper.execute(getFileQuery());
+        
+        Sheaf sheaf1 = env.takeOverSheaf();
+        Sheaf sheaf2 = env.takeOverSheaf();
+        Sheaf sheaf3 = env.getSheaf();
+        
+        assertNotNull(sheaf1);
+        assertNull(sheaf2);
+        assertNull(sheaf3); 
+    }
+    
+    @Test
+    public void testSheafextraction2() throws Exception
+    {
+        EnvWrapper wrapper = EnvPool.instance().getPooledEnvironment();
+        EmdrosEnv env = wrapper.getEnv();
+        wrapper.execute(getFileQuery());
+        
+        Sheaf sheaf1 = env.getSheaf();
+        Sheaf sheaf1a = env.getSheaf();
+        Sheaf sheaf2 = env.takeOverSheaf();
+        Sheaf sheaf3 = env.getSheaf();
+        
+        assertNotSame(sheaf1, sheaf1a);
+        assertNotSame(sheaf1, sheaf2);
+        assertNotNull(sheaf1);
+        assertNotNull(sheaf1a);
+        assertNotNull(sheaf2);
+        assertNull(sheaf3); 
     }
 
     private String getStringQuery()

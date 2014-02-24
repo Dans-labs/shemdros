@@ -1,25 +1,24 @@
 package nl.knaw.dans.shemdros.pro;
 
-import jemdros.EmdrosEnv;
-import jemdros.Sheaf;
 import nl.knaw.dans.shemdros.core.EnvConsumer;
 import nl.knaw.dans.shemdros.core.ShemdrosException;
+import jemdros.EmdrosEnv;
+import jemdros.Sheaf;
 
 public class SheafProducer implements EnvConsumer<Sheaf>
 {
 
+    @Override
     public Sheaf consume(EmdrosEnv env) throws ShemdrosException
     {
-        if (env.isSheaf())
+        if (!env.isSheaf())
         {
-            return env.getSheaf();
+            throw new ShemdrosException("Environment does noet contain a sheaf.");
         }
-        else
-        {
-            throw new ShemdrosException("No sheaf in environment: table=" + env.isTable() + ", flatSheaf=" + env.isFlatSheaf());
-        }
+        return env.takeOverSheaf();
     }
 
+    @Override
     public void close()
     {
         // TODO Auto-generated method stub

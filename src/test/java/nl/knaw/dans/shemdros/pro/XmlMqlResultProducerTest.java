@@ -1,7 +1,5 @@
 package nl.knaw.dans.shemdros.pro;
 
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
@@ -9,6 +7,7 @@ import java.io.OutputStream;
 
 import nl.knaw.dans.shemdros.core.EmdrosClient;
 import nl.knaw.dans.shemdros.core.ShemdrosCompileException;
+import nl.knaw.dans.shemdros.integration.EnvironmentTest;
 import nl.knaw.dans.shemdros.integration.IntegrationTest;
 
 import org.junit.Test;
@@ -17,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Category(IntegrationTest.class)
-public class XmlMqlResultProducerTest
+public class XmlMqlResultProducerTest extends EnvironmentTest
 {
 
     private static final Logger logger = LoggerFactory.getLogger(XmlMqlResultProducerTest.class);
@@ -25,11 +24,11 @@ public class XmlMqlResultProducerTest
     @Test
     public void testProduction() throws Exception
     {
-        File query = new File("/data/emdros/wivu/queries/bh_lq99.mql");
+        File query = new File("/data/emdros/wivu/queries/bh_lq01.mql");
         OutputStream out = new FileOutputStream("target/mql-result.xml");
         XmlMqlResultProducer producer = new XmlMqlResultProducer(out);// System.err);
         producer.setIndent(2);
-        EmdrosClient.instance().execute(query, producer);
+        new EmdrosClient().execute(query, producer);
         out.close();
     }
 
@@ -55,7 +54,7 @@ public class XmlMqlResultProducerTest
             producer.setIndent(2);
             try
             {
-                EmdrosClient.instance().execute(query, producer);
+                new EmdrosClient().execute(query, producer);
             }
             catch (ShemdrosCompileException e)
             {

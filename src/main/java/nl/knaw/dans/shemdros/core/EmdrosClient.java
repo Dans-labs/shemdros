@@ -5,20 +5,9 @@ import java.io.File;
 public class EmdrosClient
 {
 
-    private static EmdrosClient INSTANCE;
-
-    public static EmdrosClient instance()
+    public EmdrosClient()
     {
-        if (INSTANCE == null)
-        {
-            INSTANCE = new EmdrosClient();
-        }
-        return INSTANCE;
-    }
-
-    private EmdrosClient()
-    {
-        // singleton
+        
     }
 
     public <T> T execute(String query, EnvConsumer<T> consumer) throws ShemdrosException

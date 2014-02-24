@@ -10,7 +10,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -59,7 +58,7 @@ public class MqlResourceTest
         Response response = webTarget.path("query").request(MediaType.TEXT_XML)
                 .post(Entity.entity("SELECT foo", MediaType.TEXT_PLAIN));
         
-        assertThat(response.getStatus(), is(200));        
+        assertThat(response.getStatus(), is(400));        
         assertThat(response.getMediaType().toString(), is(MediaType.TEXT_XML));
         
         String mqlResult = response.readEntity(String.class);

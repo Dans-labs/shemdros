@@ -19,6 +19,7 @@ import jemdros.SheafConstIterator;
 import jemdros.Straw;
 import jemdros.StrawConstIterator;
 import nl.knaw.dans.shemdros.core.EnvConsumer;
+import nl.knaw.dans.shemdros.core.Shemdros;
 import nl.knaw.dans.shemdros.core.ShemdrosException;
 
 import org.apache.commons.lang3.StringUtils;
@@ -31,8 +32,6 @@ import org.apache.commons.lang3.StringUtils;
 public class XmlMqlResultProducer implements EnvConsumer<Void>
 {
 
-    public static final String DEFAULT_ENCODING = "UTF-8";
-
     private final String encoding;
     private final XMLStreamWriter out;
     private boolean newLine;
@@ -41,7 +40,7 @@ public class XmlMqlResultProducer implements EnvConsumer<Void>
 
     public XmlMqlResultProducer(OutputStream outputStream) throws ShemdrosException
     {
-        this(outputStream, DEFAULT_ENCODING);
+        this(outputStream, Shemdros.DEFAULT_CHARACTER_ENCODING);
     }
 
     public XmlMqlResultProducer(OutputStream outputStream, String charsetName) throws ShemdrosException
@@ -107,7 +106,7 @@ public class XmlMqlResultProducer implements EnvConsumer<Void>
 
     private void writeDocument(EmdrosEnv env, String nl, String ident) throws XMLStreamException, EmdrosException
     {
-        out.writeStartDocument(encoding, "1.0");
+        out.writeStartDocument(encoding, Shemdros.XML_VERSION);
         // writeDocType(nl);
         writeRootElement(env, nl, ident);
         out.writeEndDocument();
@@ -122,7 +121,7 @@ public class XmlMqlResultProducer implements EnvConsumer<Void>
     // out.writeDTD("]>");
     // }
 
-    private void writeRootElement(EmdrosEnv env, String nl, String ident) throws XMLStreamException, EmdrosException
+    protected void writeRootElement(EmdrosEnv env, String nl, String ident) throws XMLStreamException, EmdrosException
     {
         out.writeCharacters(nl);
         out.writeStartElement("mql-results");
@@ -139,7 +138,7 @@ public class XmlMqlResultProducer implements EnvConsumer<Void>
 
         if (env.isSheaf())
         {
-            Sheaf sheaf = env.takeOverSheaf();
+            Sheaf sheaf = env.getSheaf();
             writeStatus(sheaf, nl, ident + ws);
             writeSheaf(sheaf, nl, ident + ws);
         }

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<bean class="nl.knaw.dans.shemdros.core.Environment" name="environment">
+		<constructor-arg value="/usr/local/lib/emdros/libjemdros.so"/>
+		<constructor-arg value="/usr/local/lib/emdros/libharvest.so"/>
+	</bean>
+
+	<bean class="nl.knaw.dans.shemdros.core.Database" name="database">
+		<property name="outputKind" value="1"/>
+		<property name="charset" value="3"/>
+		<property name="backendKind" value="4"/>
+		<property name="hostname" value="localhost"/>
+		<property name="username" value=""/>
+		<property name="password" value=""/>
+		<property name="initialDB" value="/data/emdros/wivu/s3/bhs3"/>
+	</bean>
+	
+	<bean class="nl.knaw.dans.shemdros.core.EnvPool" name="envpool">
+		<property name="database" ref="database"/>
+	</bean>
+	
+	<bean class="nl.knaw.dans.shemdros.core.CmdRenderObjects" name="cmdrenderobjects">
+		<property name="database" ref="database"/>
+	</bean>
+
+    <bean class="nl.knaw.dans.shemdros.web.exc.ShemdrosExceptionMapper" name="shemdrosexceptionmapper">
+    	<!-- Set a xslt-stylesheet for client-side rendering of xml-output -->
+    	<!-- property name="stylesheet" value="bar/war.far"/ -->
+    </bean>
+
+</beans>
