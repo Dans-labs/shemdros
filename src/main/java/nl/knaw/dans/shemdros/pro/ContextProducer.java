@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jemdros.EmdrosEnv;
 import jemdros.EmdrosException;
 import jemdros.MatchedObject;
@@ -22,42 +19,40 @@ import nl.knaw.dans.shemdros.core.Shemdros;
 import nl.knaw.dans.shemdros.core.ShemdrosException;
 import nl.knaw.dans.shemdros.util.MonadSet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class LevelContextProducer implements EnvConsumer<Void>
+public abstract class ContextProducer implements EnvConsumer<Void>
 {
+    private static final Logger logger = LoggerFactory.getLogger(ContextProducer.class);
     
-    private static final Logger logger = LoggerFactory.getLogger(LevelContextProducer.class);
     
-    private final Appendable out;
     private final CmdRenderObjects ro;
     
-    private int contextLevel = 0;
-    private int strawLevel = -1;
+    private Appendable out;
     
+    private int strawLevel = -1;
     private List<MonadSet> focusMonadSets = new ArrayList<>();
     private List<MonadSet> contextMonadSets = new ArrayList<>();
     
+    public ContextProducer(File jsonFile)
+    {
+        this(null, jsonFile);
+    }
     
-    public LevelContextProducer(Appendable out, File jsonFile)
+    public ContextProducer(Appendable out, File jsonFile)
     {
         this.out = out;
         ro = new CmdRenderObjects(jsonFile);
     }
-
-    public int getContextLevel()
-    {
-        return contextLevel;
-    }
-
-    public void setContextLevel(int contextLevel)
-    {
-        this.contextLevel = contextLevel;
-    }
+    
+    protected abstract void addRootAttributes() throws IOException;
+    protected abstract boolean isContextMatch();
 
     @Override
     public Void consume(EmdrosEnv env) throws ShemdrosException
     {
-        logger.debug("Start rendering result at context level {}.", contextLevel);
+        logger.debug("Start rendering result with {}.", this.getClass().getName());
         long start = System.currentTimeMillis();
         if (env.isSheaf())
         {
@@ -75,7 +70,7 @@ public class LevelContextProducer implements EnvConsumer<Void>
         logger.debug("Finished rendering result in {} ms.", System.currentTimeMillis() - start);
         return null;
     }
-
+    
     private void startRender(Sheaf sheaf) throws ShemdrosException
     {
         if (sheaf.isFail())
@@ -92,14 +87,15 @@ public class LevelContextProducer implements EnvConsumer<Void>
             throw new ShemdrosException(e);
         }
     }
-
+    
     private void startDocument(Sheaf sheaf) throws ShemdrosException, IOException
     {
-        out.append(Shemdros.XML_DECLARATION);
+        getOut().append(Shemdros.XML_DECLARATION);
         out.append("\n");
-        out.append("<context_list level=\"");
-        out.append("" + contextLevel);
-        out.append("\">\n");
+        out.append("<context_list");
+        addAttribute("producer", this.getClass().getName());
+        addRootAttributes();
+        out.append(">\n");
         
         try
         {
@@ -111,7 +107,7 @@ public class LevelContextProducer implements EnvConsumer<Void>
         }
         out.append("</context_list>");
     }
-
+    
     private void renderSheaf(Sheaf sheaf) throws EmdrosException, IOException
     {
         SheafConstIterator sci = sheaf.const_iterator();
@@ -121,7 +117,7 @@ public class LevelContextProducer implements EnvConsumer<Void>
             renderStraw(straw);
         }
     }
-
+    
     private void renderStraw(Straw straw) throws EmdrosException, IOException
     {
         strawLevel++;
@@ -131,17 +127,17 @@ public class LevelContextProducer implements EnvConsumer<Void>
             MatchedObject mo = sci.next();
             renderMatchedObject(mo);
         }
-        if (strawLevel == contextLevel)
+        if (isContextMatch())
         {
             writeContext();
         }
         strawLevel--;
     }
-
-    private void renderMatchedObject(MatchedObject mo) throws EmdrosException, IOException
+    
+    protected void renderMatchedObject(MatchedObject mo) throws EmdrosException, IOException
     {
         SetOfMonads som = mo.getMonads();
-        if (strawLevel == contextLevel)
+        if (isContextMatch())
         {
             contextMonadSets.add(new MonadSet(som.first(), som.last()));
         }
@@ -158,25 +154,18 @@ public class LevelContextProducer implements EnvConsumer<Void>
     
     protected void writeContext() throws IOException
     {
-        out.append("<context>");
-        for (MonadSet focus : focusMonadSets)
+        for (MonadSet context : getContextMonadSets())
         {
-            out.append("\n<focus first=\"")
-                .append("" + focus.getFirst())
-                .append("\" last=\"")
-                .append("" + focus.getLast())
-                .append("\"/>");
-            ;
+            getRo().getContextPart(context.getFirst(), context.getLast(), getOut());
         }
-        for (MonadSet context : contextMonadSets)
-        {
-            ro.getContextPart(context.getFirst(), context.getLast(), out);
-        }
-        
-        out.append("</context>\n");
         clearMonadSets();
     }
-
+    
+    protected int getStrawLevel()
+    {
+        return strawLevel;
+    }
+    
     protected void clearMonadSets()
     {
         focusMonadSets.clear();
@@ -195,18 +184,35 @@ public class LevelContextProducer implements EnvConsumer<Void>
     
     protected Appendable getOut()
     {
+        if (out == null)
+        {
+            throw new IllegalStateException("No Appendable set.");
+        }
         return out;
+    }
+    
+    protected void setOut(Appendable out)
+    {
+        this.out = out;
     }
 
     protected CmdRenderObjects getRo()
     {
         return ro;
     }
+    
+    protected void addAttribute(String key, String value) throws IOException
+    {
+        getOut().append(" ")
+            .append(key)
+            .append("=\"")
+            .append(value)
+            .append("\"");
+    }
 
     @Override
     public void close()
     {
-        
         
     }
 

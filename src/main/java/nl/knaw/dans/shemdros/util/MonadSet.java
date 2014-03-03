@@ -36,5 +36,10 @@ public class MonadSet
     {
         return last - first + 1;
     }
+    
+    public boolean isInSet(int monad)
+    {
+        return monad >= first && monad <=last;
+    }
 
 }

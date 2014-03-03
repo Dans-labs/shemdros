@@ -21,11 +21,12 @@ public class LevelContextProducerTest  extends EnvironmentTest
     @Test
     public void testProduction() throws Exception
     {
-        File query = new File("/data/emdros/wivu/queries/bh_lq01.mql");
+        File query = new File("src/test/resources/queries/bh_lq01.mql");
         OutputStream fout = new FileOutputStream("target/level-context.xml");
         Writer out = new BufferedWriter(new OutputStreamWriter(fout));
         
-        LevelContextProducer lcp = new LevelContextProducer(out, new File("src/test/resources/core/fetchinfo.json"));
+        LevelContextProducer lcp = new LevelContextProducer2(out, new File("src/test/resources/core/fetchinfo.json"), "<w fm=");
+        lcp.setContextLevel(0);
         new EmdrosClient().execute(query, lcp);
         out.close();
     }
