@@ -18,22 +18,22 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import nl.knaw.dans.shemdros.core.Shemdros;
 import nl.knaw.dans.shemdros.core.ShemdrosCompileException;
 import nl.knaw.dans.shemdros.core.ShemdrosException;
+import nl.knaw.dans.shemdros.core.ShemdrosParameterException;
 
 @Provider
 public class ShemdrosExceptionMapper implements ExceptionMapper<ShemdrosException>
 {
-    
-    
+
     private static final String NL = "\n";
     private static final String WS = "  ";
-    
+
     private static String stylesheet;
-    
+
     public static Response map(ShemdrosException e)
     {
         return new ShemdrosExceptionMapper().toResponse(e);
     }
-    
+
     private XMLStreamWriter wout;
 
     public String getStylesheet()
@@ -50,16 +50,13 @@ public class ShemdrosExceptionMapper implements ExceptionMapper<ShemdrosExceptio
     public Response toResponse(ShemdrosException sex)
     {
         Status status = mapStatus(sex);
-        return Response.status(status)
-                .type(MediaType.TEXT_XML)
-                .entity(composeEntity(sex, status))
-                .build();
+        return Response.status(status).type(MediaType.TEXT_XML).entity(composeEntity(sex, status)).build();
     }
-    
+
     private Status mapStatus(ShemdrosException sex)
     {
         Status status;
-        if (sex instanceof ShemdrosCompileException)
+        if (sex instanceof ShemdrosParameterException)
         {
             status = Status.BAD_REQUEST;
         }
@@ -69,7 +66,7 @@ public class ShemdrosExceptionMapper implements ExceptionMapper<ShemdrosExceptio
         }
         return status;
     }
-    
+
     private String composeEntity(ShemdrosException sex, Status status)
     {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
@@ -90,7 +87,7 @@ public class ShemdrosExceptionMapper implements ExceptionMapper<ShemdrosExceptio
         {
             wout = XMLOutputFactory.newInstance().createXMLStreamWriter(bout);
             wout.writeStartDocument(Shemdros.DEFAULT_CHARACTER_ENCODING, Shemdros.XML_VERSION);
-            
+
             if (stylesheet != null)
             {
                 wout.writeCharacters(NL);
@@ -126,19 +123,19 @@ public class ShemdrosExceptionMapper implements ExceptionMapper<ShemdrosExceptio
         wout.writeCharacters(NL);
         wout.writeCharacters(indent);
         wout.writeStartElement("http-status");
-        
+
         wout.writeCharacters(NL);
         wout.writeCharacters(indent + WS);
         wout.writeStartElement("code");
         wout.writeCharacters("" + status.getStatusCode());
         wout.writeEndElement();
-        
+
         wout.writeCharacters(NL);
         wout.writeCharacters(indent + WS);
         wout.writeStartElement("reason");
         wout.writeCharacters(status.getReasonPhrase());
         wout.writeEndElement();
-        
+
         wout.writeCharacters(NL);
         wout.writeCharacters(indent);
         wout.writeEndElement();
@@ -149,13 +146,13 @@ public class ShemdrosExceptionMapper implements ExceptionMapper<ShemdrosExceptio
         wout.writeCharacters(NL);
         wout.writeCharacters(indent);
         wout.writeStartElement("exception");
-        
+
         wout.writeCharacters(NL);
         wout.writeCharacters(indent + WS);
         wout.writeStartElement("class");
         wout.writeCharacters(sex.getClass().getName());
         wout.writeEndElement();
-        
+
         wout.writeCharacters(NL);
         wout.writeCharacters(indent + WS);
         wout.writeStartElement("message");
@@ -164,7 +161,7 @@ public class ShemdrosExceptionMapper implements ExceptionMapper<ShemdrosExceptio
         wout.writeCharacters(NL);
         wout.writeCharacters(indent + WS);
         wout.writeEndElement();
-        
+
         wout.writeCharacters(NL);
         wout.writeCharacters(indent + WS);
         wout.writeStartElement("stacktrace");
@@ -173,7 +170,7 @@ public class ShemdrosExceptionMapper implements ExceptionMapper<ShemdrosExceptio
         wout.writeCharacters(NL);
         wout.writeCharacters(indent + WS);
         wout.writeEndElement();
-        
+
         wout.writeCharacters(NL);
         wout.writeCharacters(indent);
         wout.writeEndElement();

@@ -47,9 +47,8 @@ public class Props implements Serializable
     }
 
     /**
-     * Get the location of the properties file.
-     * Default is "conf/{simpleclassname}.properties.
-     * Subclasses can override.
+     * Get the location of the properties file. Default is "conf/{simpleclassname}.properties. Subclasses
+     * can override.
      * 
      * @return the location of the properties file.
      */

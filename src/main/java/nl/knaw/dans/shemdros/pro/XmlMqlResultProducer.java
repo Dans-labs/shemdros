@@ -10,45 +10,60 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import jemdros.EMdFValue;
-import jemdros.EmdrosEnv;
 import jemdros.EmdrosException;
+import jemdros.MQLResult;
 import jemdros.MatchedObject;
 import jemdros.SetOfMonads;
 import jemdros.Sheaf;
 import jemdros.SheafConstIterator;
 import jemdros.Straw;
 import jemdros.StrawConstIterator;
-import nl.knaw.dans.shemdros.core.EnvConsumer;
 import nl.knaw.dans.shemdros.core.Shemdros;
 import nl.knaw.dans.shemdros.core.ShemdrosException;
+import nl.knaw.dans.shemdros.core.StreamingMqlResultConsumer;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Environment consumer that produces mql-results in the xml-format.
  * 
- * @author henk van den berg
+ * @author Gendan Vehnberk
  */
-public class XmlMqlResultProducer implements EnvConsumer<Void>
+public class XmlMqlResultProducer implements StreamingMqlResultConsumer
 {
 
+    private static final Logger logger = LoggerFactory.getLogger(XmlMqlResultProducer.class);
+    
     private final String encoding;
-    private final XMLStreamWriter out;
+    private XMLStreamWriter out;
     private boolean newLine;
     private int indent;
     private String ws = "";
 
-    public XmlMqlResultProducer(OutputStream outputStream) throws ShemdrosException
+    public XmlMqlResultProducer()
     {
-        this(outputStream, Shemdros.DEFAULT_CHARACTER_ENCODING);
+        encoding = Shemdros.DEFAULT_CHARACTER_ENCODING;
     }
 
-    public XmlMqlResultProducer(OutputStream outputStream, String charsetName) throws ShemdrosException
+    public XmlMqlResultProducer(OutputStream output) throws ShemdrosException
+    {
+        this(output, Shemdros.DEFAULT_CHARACTER_ENCODING);
+    }
+
+    public XmlMqlResultProducer(OutputStream output, String charsetName) throws ShemdrosException
     {
         encoding = charsetName;
+        setOutputStream(output);
+    }
+
+    @Override
+    public void setOutputStream(OutputStream output) throws ShemdrosException
+    {
         try
         {
-            out = XMLOutputFactory.newInstance().createXMLStreamWriter(new OutputStreamWriter(outputStream, encoding));
+            out = XMLOutputFactory.newInstance().createXMLStreamWriter(new OutputStreamWriter(output, encoding));
         }
         catch (UnsupportedEncodingException e)
         {
@@ -64,8 +79,10 @@ public class XmlMqlResultProducer implements EnvConsumer<Void>
         }
     }
 
-    public Void consume(EmdrosEnv env) throws ShemdrosException
+    public Void consume(MQLResult mqlResult) throws ShemdrosException
     {
+        logger.debug("Start writing result to mql-xml with {}.", this.getClass().getName());
+        long start = System.currentTimeMillis();
         String nl = "";
         String ident = "";
         if (newLine || indent > 0)
@@ -75,20 +92,31 @@ public class XmlMqlResultProducer implements EnvConsumer<Void>
         }
         try
         {
-            handle(env, nl, ident);
+            handle(mqlResult, nl, ident);
         }
         catch (XMLStreamException e)
         {
             throw new ShemdrosException("Could not close XMLStreanWriter: ", e);
         }
+        logger.debug("Finished writing result in {} ms.", System.currentTimeMillis() - start);
         return null;
     }
 
-    private void handle(EmdrosEnv env, String nl, String ident) throws ShemdrosException, XMLStreamException
+    private XMLStreamWriter getOut()
     {
+        if (out == null)
+        {
+            throw new IllegalStateException("No outputStream set.");
+        }
+        return out;
+    }
+
+    private void handle(MQLResult mqlResult, String nl, String ident) throws ShemdrosException, XMLStreamException
+    {
+        XMLStreamWriter writer = getOut();
         try
         {
-            writeDocument(env, nl, ident);
+            writeDocument(writer, mqlResult, nl, ident);
         }
         catch (XMLStreamException e)
         {
@@ -100,115 +128,108 @@ public class XmlMqlResultProducer implements EnvConsumer<Void>
         }
         finally
         {
-            out.close();
+            writer.flush();
+            // do not close streamWriter. it will close the underlying outputStream, preventing further
+            // response.
         }
     }
 
-    private void writeDocument(EmdrosEnv env, String nl, String ident) throws XMLStreamException, EmdrosException
+    private void writeDocument(XMLStreamWriter writer, MQLResult mqlResult, String nl, String ident) throws XMLStreamException, EmdrosException
     {
-        out.writeStartDocument(encoding, Shemdros.XML_VERSION);
-        // writeDocType(nl);
-        writeRootElement(env, nl, ident);
-        out.writeEndDocument();
+        writer.writeStartDocument(encoding, Shemdros.XML_VERSION);
+        // writeDocType(writer, nl);
+        writeRootElement(writer, mqlResult, nl, ident);
+        writer.writeEndDocument();
     }
 
-    // private void writeDocType(String nl) throws XMLStreamException {
-    // out.writeCharacters(nl);
-    // out.writeDTD("<!DOCTYPE mql_results [");
-    // out.writeCharacters(nl);
-    // out.writeDTD("<!ELEMENT mql_results (mql_result)* >");
-    // out.writeCharacters(nl);
-    // out.writeDTD("]>");
-    // }
-
-    protected void writeRootElement(EmdrosEnv env, String nl, String ident) throws XMLStreamException, EmdrosException
+    protected void writeRootElement(XMLStreamWriter writer, MQLResult mqlResult, String nl, String ident) throws XMLStreamException, EmdrosException
     {
-        out.writeCharacters(nl);
-        out.writeStartElement("mql-results");
-        writeMqlResult(env, nl, ident + ws);
-        out.writeCharacters(nl);
-        out.writeEndElement();
+        writer.writeCharacters(nl);
+        writer.writeStartElement("mql-results");
+        writeMqlResult(writer, mqlResult, nl, ident + ws);
+        writer.writeCharacters(nl);
+        writer.writeEndElement();
     }
 
-    private void writeMqlResult(EmdrosEnv env, String nl, String ident) throws XMLStreamException, EmdrosException
+    private void writeMqlResult(XMLStreamWriter writer, MQLResult mqlResult, String nl, String ident) throws XMLStreamException, EmdrosException
     {
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeStartElement("mql-result");
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeStartElement("mql-result");
 
-        if (env.isSheaf())
+        if (mqlResult.isSheaf())
         {
-            Sheaf sheaf = env.getSheaf();
-            writeStatus(sheaf, nl, ident + ws);
-            writeSheaf(sheaf, nl, ident + ws);
+            Sheaf sheaf = mqlResult.getSheaf();
+            writeStatus(writer, sheaf, nl, ident + ws);
+            writeSheaf(writer, sheaf, nl, ident + ws);
         }
-        else if (env.isFlatSheaf())
+        else if (mqlResult.isFlatSheaf())
         {
             throw new UnsupportedOperationException("not yet implemented");
         }
-        else if (env.isTable())
+        else if (mqlResult.isTable())
         {
             throw new UnsupportedOperationException("not yet implemented");
         }
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeEndElement();
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeEndElement();
     }
 
-    private void writeStatus(Sheaf sheaf, String nl, String ident) throws XMLStreamException
+    private void writeStatus(XMLStreamWriter writer, Sheaf sheaf, String nl, String ident) throws XMLStreamException
     {
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeEmptyElement("status");
-        out.writeAttribute("success", "" + !sheaf.isFail());
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeEmptyElement("status");
+        writer.writeAttribute("success", "" + !sheaf.isFail());
     }
 
-    private void writeSheaf(Sheaf sheaf, String nl, String ident) throws XMLStreamException, EmdrosException
+    private void writeSheaf(XMLStreamWriter writer, Sheaf sheaf, String nl, String ident) throws XMLStreamException, EmdrosException
     {
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeStartElement("sheaf");
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeStartElement("sheaf");
         SheafConstIterator sci = sheaf.const_iterator();
         while (sci.hasNext())
         {
             Straw straw = sci.next();
-            writeStraw(straw, nl, ident + ws);
+            writeStraw(writer, straw, nl, ident + ws);
         }
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeEndElement();
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeEndElement();
     }
 
-    private void writeStraw(Straw straw, String nl, String ident) throws XMLStreamException, EmdrosException
+    private void writeStraw(XMLStreamWriter writer, Straw straw, String nl, String ident) throws XMLStreamException, EmdrosException
     {
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeStartElement("straw");
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeStartElement("straw");
         StrawConstIterator sci = straw.const_iterator();
         while (sci.hasNext())
         {
             MatchedObject mo = sci.next();
-            writeMatchedObject(mo, nl, ident + ws);
+            writeMatchedObject(writer, mo, nl, ident + ws);
         }
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeEndElement();
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeEndElement();
     }
 
-    private void writeMatchedObject(MatchedObject mo, String nl, String ident) throws XMLStreamException, EmdrosException
+    private void writeMatchedObject(XMLStreamWriter writer, MatchedObject mo, String nl, String ident) throws XMLStreamException, EmdrosException
     {
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeStartElement("matched_object");
-        out.writeAttribute("object_type_name", mo.getObjectTypeName());
-        out.writeAttribute("focus", "" + mo.getFocus());
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeStartElement("matched_object");
+        writer.writeAttribute("object_type_name", mo.getObjectTypeName());
+        writer.writeAttribute("focus", "" + mo.getFocus());
         String marks = mo.getMarksString();
         if (!StringUtils.isBlank(marks))
-            out.writeAttribute("marks", marks);
-        out.writeAttribute("id_d", "" + mo.getID_D());
+            writer.writeAttribute("marks", marks);
+        writer.writeAttribute("id_d", "" + mo.getID_D());
 
         SetOfMonads som = mo.getMonads();
-        writeMonatSet(som, nl, ident + ws);
+        writeMonatSet(writer, som, nl, ident + ws);
 
         // featureList is always empty, even when mo.getNoOfEMdFValues() != 0.
         // StringList featureList = mo.getFeatureList();
@@ -220,18 +241,18 @@ public class XmlMqlResultProducer implements EnvConsumer<Void>
         long noev = mo.getNoOfEMdFValues();
         if (noev > 0)
         {
-            writeFeatures(mo, nl, ident + ws);
+            writeFeatures(writer, mo, nl, ident + ws);
         }
 
         if (!mo.sheafIsEmpty())
         {
             Sheaf sheaf = mo.getSheaf();
-            writeSheaf(sheaf, nl, ident + ws);
+            writeSheaf(writer, sheaf, nl, ident + ws);
         }
 
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeEndElement();
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeEndElement();
         //
         // StringList sl = mo.getFeatureList();
         //
@@ -256,52 +277,52 @@ public class XmlMqlResultProducer implements EnvConsumer<Void>
         // }
     }
 
-    private void writeFeatures(MatchedObject mo, String nl, String ident) throws XMLStreamException, EmdrosException
+    private void writeFeatures(XMLStreamWriter writer, MatchedObject mo, String nl, String ident) throws XMLStreamException, EmdrosException
     {
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeStartElement("features");
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeStartElement("features");
         long noev = mo.getNoOfEMdFValues();
         for (int i = 0; i < noev; i++)
         {
-            writeFeature(i, mo, nl, ident + ws);
+            writeFeature(writer, i, mo, nl, ident + ws);
         }
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeEndElement();
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeEndElement();
     }
 
-    private void writeFeature(int i, MatchedObject mo, String nl, String ident) throws XMLStreamException, EmdrosException
+    private void writeFeature(XMLStreamWriter writer, int i, MatchedObject mo, String nl, String ident) throws XMLStreamException, EmdrosException
     {
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeStartElement("feature");
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeStartElement("feature");
         EMdFValue ev = mo.getEMdFValue(i);
-        // out.writeAttribute("feature_name", "??duno??");
-        out.writeAttribute("feature_type", ev.getKind().toString());
-        // out.writeAttribute("enum_type", "??duno??");
-        out.writeCharacters(mo.getFeatureAsString(i));
-        out.writeEndElement();
+        // writer.writeAttribute("feature_name", "??duno??");
+        writer.writeAttribute("feature_type", ev.getKind().toString());
+        // writer.writeAttribute("enum_type", "??duno??");
+        writer.writeCharacters(mo.getFeatureAsString(i));
+        writer.writeEndElement();
     }
 
-    private void writeMonatSet(SetOfMonads som, String nl, String ident) throws XMLStreamException
+    private void writeMonatSet(XMLStreamWriter writer, SetOfMonads som, String nl, String ident) throws XMLStreamException
     {
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeStartElement("monad_set");
-        writeMse(som, nl, ident + ws);
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeEndElement();
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeStartElement("monad_set");
+        writeMse(writer, som, nl, ident + ws);
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeEndElement();
     }
 
-    private void writeMse(SetOfMonads som, String nl, String ident) throws XMLStreamException
+    private void writeMse(XMLStreamWriter writer, SetOfMonads som, String nl, String ident) throws XMLStreamException
     {
-        out.writeCharacters(nl);
-        out.writeCharacters(ident);
-        out.writeEmptyElement("mse");
-        out.writeAttribute("first", "" + som.first());
-        out.writeAttribute("last", "" + som.last());
+        writer.writeCharacters(nl);
+        writer.writeCharacters(ident);
+        writer.writeEmptyElement("mse");
+        writer.writeAttribute("first", "" + som.first());
+        writer.writeAttribute("last", "" + som.last());
 
     }
 

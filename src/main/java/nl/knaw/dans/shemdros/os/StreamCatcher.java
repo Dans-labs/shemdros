@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 
 public class StreamCatcher extends Thread
 {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(StreamCatcher.class);
-    
+
     private final InputStream is;
     private final Appendable appendable;
 
@@ -42,4 +42,3 @@ public class StreamCatcher extends Thread
     }
 
 }
-

@@ -7,18 +7,24 @@ public class EmdrosClient
 
     public EmdrosClient()
     {
-        
+
     }
 
-    public <T> T execute(String query, EnvConsumer<T> consumer) throws ShemdrosException
+    public <T> T execute(String query, MqlResultConsumer<T> consumer) throws ShemdrosException
     {
-        EnvWrapper wrapper = EnvPool.instance().getPooledEnvironment();
+        return execute(Database.DEFAULT, query, consumer);
+    }
+
+    public <T> T execute(String databaseName, String query, MqlResultConsumer<T> consumer) throws ShemdrosException
+    {
+        EnvPool envPool = EmdrosFactory.getEnvPool(databaseName);
+        EnvWrapper wrapper = envPool.getPooledEnvironment();
         T product;
         try
         {
             if (wrapper.execute(query))
             {
-                product = consumer.consume(wrapper.getEnv());
+                product = consumer.consume(wrapper.getEnv().takeOverResult());
             }
             else
             {
@@ -28,20 +34,26 @@ public class EmdrosClient
         finally
         {
             consumer.close();
-            EnvPool.instance().returnPooledEnvironment(wrapper);
+            envPool.returnPooledEnvironment(wrapper);
         }
         return product;
     }
 
-    public <T> T execute(File query, EnvConsumer<T> consumer) throws ShemdrosException
+    public <T> T execute(File query, MqlResultConsumer<T> consumer) throws ShemdrosException
     {
-        EnvWrapper wrapper = EnvPool.instance().getPooledEnvironment();
+        return execute(Database.DEFAULT, query, consumer);
+    }
+
+    public <T> T execute(String databaseName, File query, MqlResultConsumer<T> consumer) throws ShemdrosException
+    {
+        EnvPool envPool = EmdrosFactory.getEnvPool(databaseName);
+        EnvWrapper wrapper = envPool.getPooledEnvironment();
         T product;
         try
         {
             if (wrapper.execute(query))
             {
-                product = consumer.consume(wrapper.getEnv());
+                product = consumer.consume(wrapper.getEnv().takeOverResult());
             }
             else
             {
@@ -51,7 +63,7 @@ public class EmdrosClient
         finally
         {
             consumer.close();
-            EnvPool.instance().returnPooledEnvironment(wrapper);
+            envPool.returnPooledEnvironment(wrapper);
         }
         return product;
     }

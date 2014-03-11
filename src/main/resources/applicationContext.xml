@@ -12,7 +12,8 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		<constructor-arg value="/usr/local/lib/emdros/libharvest.so"/>
 	</bean>
 
-	<bean class="nl.knaw.dans.shemdros.core.Database" name="database">
+	<bean class="nl.knaw.dans.shemdros.core.Database" name="defaultDB">
+		<constructor-arg value="default"/>
 		<property name="outputKind" value="1"/>
 		<property name="charset" value="3"/>
 		<property name="backendKind" value="4"/>
@@ -22,12 +23,23 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		<property name="initialDB" value="/data/emdros/wivu/s3/bhs3"/>
 	</bean>
 	
-	<bean class="nl.knaw.dans.shemdros.core.EnvPool" name="envpool">
-		<property name="database" ref="database"/>
+	<bean class="nl.knaw.dans.shemdros.core.JsonFile" name="defaultJF">
+		<constructor-arg value="default"/>
+		<constructor-arg value="/home/user/git/shebanq/shemdros/src/test/resources/core/fetchinfo2.json"/>
+		<property name="focusElementPart" value="&lt;w fm="/>
 	</bean>
 	
-	<bean class="nl.knaw.dans.shemdros.core.CmdRenderObjects" name="cmdrenderobjects">
-		<property name="database" ref="database"/>
+	<bean class="nl.knaw.dans.shemdros.core.EmdrosFactory" name="emdrosFactory">
+		<property name="databases">
+			<list>
+				<ref bean="defaultDB"/>
+			</list>
+		</property>
+		<property name="jsonFiles">
+			<list>
+				<ref bean="defaultJF"/>
+			</list>
+		</property>
 	</bean>
 
     <bean class="nl.knaw.dans.shemdros.web.exc.ShemdrosExceptionMapper" name="shemdrosexceptionmapper">

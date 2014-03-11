@@ -1,19 +1,17 @@
 package nl.knaw.dans.shemdros.pro;
 
-import java.io.File;
 import java.io.IOException;
 
-public class LevelContextProducer3 extends ContextProducer
+import nl.knaw.dans.shemdros.core.ShemdrosParameterException;
+
+public class LevelContextProducer extends ContextProducer
 {
-    
+
     private int contextLevel = 0;
 
-    public LevelContextProducer3(Appendable out, File jsonFile, String focusElementPart)
+    public LevelContextProducer(String databaseName, String jsonName) throws ShemdrosParameterException
     {
-        super(jsonFile);
-        FocusInterventionist focusProducer = new FocusInterventionist(out, focusElementPart);
-        focusProducer.setFocusList(getFocusMonadSets());
-        setOut(focusProducer);
+        super(databaseName, jsonName);
     }
 
     public int getContextLevel()
@@ -29,7 +27,7 @@ public class LevelContextProducer3 extends ContextProducer
     @Override
     protected void addRootAttributes() throws IOException
     {
-        addAttribute("contex-level", Integer.toString(contextLevel));
+        addAttribute("contex-level", contextLevel);
     }
 
     @Override

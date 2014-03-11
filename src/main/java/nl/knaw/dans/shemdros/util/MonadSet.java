@@ -5,11 +5,17 @@ public class MonadSet
 
     private int first;
     private int last;
-    
+
     public MonadSet(int first, int last)
     {
-        this.first = first;
-        this.last = last;
+        setFirst(first);
+        setLast(last);
+    }
+
+    public MonadSet(int first, int last, int offsetFirst, int offsetLast)
+    {
+        setFirst(first - offsetFirst);
+        setLast(last + offsetLast);
     }
 
     public int getFirst()
@@ -20,6 +26,10 @@ public class MonadSet
     public void setFirst(int first)
     {
         this.first = first;
+        if (this.first < 1)
+        {
+            this.first = 1;
+        }
     }
 
     public int getLast()
@@ -31,15 +41,15 @@ public class MonadSet
     {
         this.last = last;
     }
-    
+
     public int getSpan()
     {
         return last - first + 1;
     }
-    
+
     public boolean isInSet(int monad)
     {
-        return monad >= first && monad <=last;
+        return monad >= first && monad <= last;
     }
 
 }

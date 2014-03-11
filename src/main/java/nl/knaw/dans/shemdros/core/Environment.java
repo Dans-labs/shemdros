@@ -34,11 +34,11 @@ public class Environment
         final Vector<String> libraries = (Vector<String>) LIBRARIES.get(loader);
         return libraries.toArray(new String[] {});
     }
-    
+
     /**
-     * 
      * @param libjemdrosPath
-     * @param libharvestPath not used. jemdros.RenderObjects unusable because of error in this library.
+     * @param libharvestPath
+     *        not used. jemdros.RenderObjects unusable because of error in this library.
      */
     public Environment(String libjemdrosPath, String libharvestPath)
     {
@@ -58,7 +58,7 @@ public class Environment
         try
         {
             boolean loaded = false;
-            final String[] libraries = getLoadedLibraries(ClassLoader.getSystemClassLoader()); 
+            final String[] libraries = getLoadedLibraries(ClassLoader.getSystemClassLoader());
             for (int i = 0; i < libraries.length; i++)
             {
                 if (libraries[i].contains("emdros"))
@@ -74,7 +74,7 @@ public class Environment
                 System.load(libharvestPath);
                 logger.info("Loaded dynamic library at path '{}'.", libharvestPath);
             }
-            
+
         }
         catch (IllegalArgumentException e)
         {

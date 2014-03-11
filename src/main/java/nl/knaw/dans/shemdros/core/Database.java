@@ -1,8 +1,13 @@
 package nl.knaw.dans.shemdros.core;
 
+import java.util.Objects;
+
 public class Database
 {
-    
+
+    public static final String DEFAULT = "default";
+
+    private final String name;
     private int outputKind = 1;
     private int charset = 3;
     private int backendKind = 4;
@@ -10,7 +15,17 @@ public class Database
     private String username = "";
     private String password = "";
     private String initialDB = "/data/emdros/wivu/s3/bhs3";
-    
+
+    public Database(String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
+
     public int getOutputKind()
     {
         return outputKind;
@@ -45,7 +60,7 @@ public class Database
     {
         this.backendKind = backendKind;
     }
-    
+
     public String getBackendName()
     {
         String backendName;
@@ -114,6 +129,47 @@ public class Database
     public void setInitialDB(String initialDB)
     {
         this.initialDB = initialDB;
+    }
+
+    @Override
+    public Database clone()
+    {
+        Database clone = new Database(name);
+        clone.backendKind = backendKind;
+        clone.charset = charset;
+        clone.hostname = hostname;
+        clone.initialDB = initialDB;
+        clone.outputKind = outputKind;
+        clone.password = password;
+        clone.username = username;
+        return clone;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj instanceof Database)
+        {
+            Database other = (Database) obj;
+            return Objects.equals(name, other.name) //
+                    && backendKind == other.backendKind //
+                    && charset == other.charset //
+                    && Objects.equals(hostname, other.hostname) && Objects.equals(initialDB, other.initialDB) //
+                    && outputKind == other.outputKind //
+                    && Objects.equals(password, other.password) //
+                    && Objects.equals(username, other.username);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString()
+    {
+        return new StringBuilder().append(this.getClass().getName()) //
+                .append(" [").append("name=").append(name)//
+                .append(", hostname=").append(hostname).append(", inirialDB=").append(initialDB)//
+                .append("' backendname=").append(getBackendName())//
+                .append("]").toString();
     }
 
 }

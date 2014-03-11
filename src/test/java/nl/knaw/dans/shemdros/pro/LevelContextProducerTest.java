@@ -3,39 +3,35 @@ package nl.knaw.dans.shemdros.pro;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+
+import nl.knaw.dans.shemdros.core.Database;
+import nl.knaw.dans.shemdros.core.EmdrosClient;
+import nl.knaw.dans.shemdros.core.JsonFile;
+import nl.knaw.dans.shemdros.integration.EnvironmentTest;
+import nl.knaw.dans.shemdros.integration.IntegrationTest;
 
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import nl.knaw.dans.shemdros.core.EmdrosClient;
-import nl.knaw.dans.shemdros.integration.EnvironmentTest;
-import nl.knaw.dans.shemdros.integration.IntegrationTest;
-
 @Category(IntegrationTest.class)
-public class LevelContextProducer3Test extends EnvironmentTest
+public class LevelContextProducerTest extends EnvironmentTest
 {
-    
-    private static final Logger logger = LoggerFactory.getLogger(LevelContextProducer3Test.class);
-    
-    private static File jsonFile = new File("src/test/resources/core/fetchinfo.json");
-    private static String focusElementPart = "<w fm=";
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(LevelContextProducerTest.class);
+
     @Test
-    public void testName() throws Exception
+    public void testAllQueries() throws Exception
     {
         File queryDir = new File("src/test/resources/queries");
         for (File queryFile : queryDir.listFiles(new FilenameFilter()
         {
-            
+
             @Override
             public boolean accept(File dir, String name)
             {
@@ -46,16 +42,25 @@ public class LevelContextProducer3Test extends EnvironmentTest
             testProduction(queryFile);
         }
     }
-    
+
+    @Test
+    public void testSingleQuery() throws Exception
+    {
+        File queryFile = new File("src/test/resources/queries/bh_lq01.mql");
+        testProduction(queryFile);
+    }
+
     public void testProduction(File queryFile) throws Exception
     {
         String name = queryFile.getName().replace('.', '_');
-        OutputStream fout = new FileOutputStream("target/" + name + "-context3.xml");
-        Writer out = new BufferedWriter(new OutputStreamWriter(fout));
-        
-        LevelContextProducer3 lc = new LevelContextProducer3(out, jsonFile, focusElementPart);
+        OutputStream output = new FileOutputStream("target/" + name + "-levelcontext.xml");
+
+        LevelContextProducer lc = new LevelContextProducer(Database.DEFAULT, JsonFile.DEFAULT);
+        lc.setOffsetFirst(2);
+        lc.setOffsetLast(4);
         lc.setContextLevel(0);
-        
+        lc.setOutputStream(output);
+
         try
         {
             new EmdrosClient().execute(queryFile, lc);
@@ -66,7 +71,7 @@ public class LevelContextProducer3Test extends EnvironmentTest
         }
         finally
         {
-            out.close();
+            output.close();
         }
     }
 

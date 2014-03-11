@@ -14,11 +14,18 @@ public class EnvWrapper
     private static final Logger logger = LoggerFactory.getLogger(EnvWrapper.class);
 
     private final EmdrosEnv env;
+    private final String databaseName;
     private boolean busy;
 
-    public EnvWrapper(EmdrosEnv env)
+    public EnvWrapper(EmdrosEnv env, String databaseName)
     {
         this.env = env;
+        this.databaseName = databaseName;
+    }
+
+    public String getDatabaseName()
+    {
+        return databaseName;
     }
 
     protected boolean isBusy()
@@ -49,6 +56,7 @@ public class EnvWrapper
 
     public boolean execute(String query, boolean printResult, boolean printErrors) throws ShemdrosException
     {
+        long start = System.currentTimeMillis();
         boolean[] bCompilerResult = new boolean[1];
         boolean bDBResult = false;
         try
@@ -59,7 +67,8 @@ public class EnvWrapper
         {
             throw new ShemdrosException(e.getClass().getSimpleName() + ": " + e.what() + "\n" + env.getDBError());
         }
-        logger.debug("Excecuted query. {}, {}", bCompilerResult, bDBResult);
+        logger.debug("Excecuted query against database '{}'. {}, {}, in {} ms.", 
+                databaseName, bCompilerResult, bDBResult, System.currentTimeMillis() - start);
         if (!bCompilerResult[0])
         {
             throw new ShemdrosCompileException(env.getCompilerError());
@@ -90,14 +99,14 @@ public class EnvWrapper
         {
             throw new ShemdrosException(e.getClass().getSimpleName() + ": " + e.what() + "\n" + env.getDBError());
         }
-        logger.debug("Excecuted query. {}, {}", bCompilerResult, bDBResult);
+        logger.debug("Excecuted query against database '{}'. {}, {}", databaseName, bCompilerResult, bDBResult);
         if (!bCompilerResult[0])
         {
             throw new ShemdrosCompileException(env.getCompilerError());
         }
         if (!bDBResult)
         {
-            throw new ShemdrosException(env.getDBError());
+            throw new ShemdrosException("Emdros DBError: " + env.getDBError());
         }
         return bCompilerResult[0] && bDBResult;
     }

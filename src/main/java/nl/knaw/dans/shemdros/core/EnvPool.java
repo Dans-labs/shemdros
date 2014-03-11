@@ -18,48 +18,7 @@ public class EnvPool
 
     private static final Logger logger = LoggerFactory.getLogger(EnvPool.class);
 
-    private static EnvPool INSTANCE;
-    
-    private Database database;
-    
-    private List<EnvWrapper> pool;
-
-    public static EnvPool instance()
-    {
-        if (INSTANCE == null)
-        {
-            new EnvPool();
-        }
-        return INSTANCE;
-    }
-
-    public static void reset()
-    {
-        INSTANCE = null;
-    }
-
-    protected EnvPool()
-    {
-        pool = Collections.synchronizedList(new ArrayList<EnvWrapper>());
-        INSTANCE = this;
-        logger.info("Initialized {}", this);
-    }
-    
-    public void setDatabase(Database database)
-    {
-        this.database = database;
-    }
-    
-    public Database getDatabase()
-    {
-        if (database == null)
-        {
-            database = new Database();
-        }
-        return database;
-    }
-
-    public EmdrosEnv getEmdrosEnv(eOutputKind output_kind, eCharsets charset, String hostname, String username, String password, String initialDB,
+    public static EmdrosEnv getEmdrosEnv(eOutputKind output_kind, eCharsets charset, String hostname, String username, String password, String initialDB,
             eBackendKind backendKind) throws ShemdrosException
     {
         EmdrosEnv env;
@@ -72,6 +31,22 @@ public class EnvPool
             throw new ShemdrosException(e.what());
         }
         return env;
+    }
+
+    private final Database database;
+
+    private List<EnvWrapper> pool;
+
+    protected EnvPool(Database database)
+    {
+        this.database = database;
+        pool = Collections.synchronizedList(new ArrayList<EnvWrapper>());
+        logger.info("Initialized {} for database '{}'.", this, database.getName());
+    }
+
+    public Database getDatabase()
+    {
+        return database.clone();
     }
 
     public EnvWrapper getPooledEnvironment() throws ShemdrosException
@@ -89,11 +64,10 @@ public class EnvPool
             }
             if (envWrapper == null)
             {
-                Database db = getDatabase();
-                EmdrosEnv env = getEmdrosEnv(eOutputKind.swigToEnum(db.getOutputKind()), 
-                        eCharsets.swigToEnum(db.getCharset()), db.getHostname(), db.getUsername(),
-                        db.getPassword(), db.getInitialDB(), eBackendKind.swigToEnum(db.getBackendKind()));
-                envWrapper = new EnvWrapper(env);
+                EmdrosEnv env = getEmdrosEnv(eOutputKind.swigToEnum(database.getOutputKind()), eCharsets.swigToEnum(database.getCharset()),
+                        database.getHostname(), database.getUsername(), database.getPassword(), database.getInitialDB(),
+                        eBackendKind.swigToEnum(database.getBackendKind()));
+                envWrapper = new EnvWrapper(env, database.getName());
                 pool.add(envWrapper);
             }
             envWrapper.setBusy(true);
@@ -116,7 +90,5 @@ public class EnvPool
             return pool.size();
         }
     }
-
-
 
 }

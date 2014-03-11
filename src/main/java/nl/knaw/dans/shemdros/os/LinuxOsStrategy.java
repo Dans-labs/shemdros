@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class LinuxOsStrategy implements OsStrategy
 {
-    
+
     @Override
     public int setAllRWX(File file, Appendable out, Appendable err) throws IOException
     {
@@ -19,8 +19,5 @@ public class LinuxOsStrategy implements OsStrategy
         String cmd = "chmod a=rwx " + filename;
         return OS.execAndWait(cmd, out, err);
     }
-    
-    
 
 }
-

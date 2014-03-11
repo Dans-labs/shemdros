@@ -1,13 +1,13 @@
 package nl.knaw.dans.shemdros.core;
 
-public class ShemdrosCompileException extends ShemdrosException
+public class ShemdrosCompileException extends ShemdrosParameterException
 {
 
     private static final long serialVersionUID = 2131891383516858554L;
 
     public ShemdrosCompileException()
     {
-        
+
     }
 
     public ShemdrosCompileException(String message)

@@ -1,8 +1,8 @@
 package nl.knaw.dans.shemdros.pro;
 
-import java.io.File;
 import java.io.IOException;
 
+import nl.knaw.dans.shemdros.core.ShemdrosParameterException;
 import jemdros.EmdrosException;
 import jemdros.MatchedObject;
 
@@ -12,12 +12,9 @@ public class MarksContextProducer extends ContextProducer
     private String contextMark = "context";
     private int markedContextLevel = -1;
 
-    public MarksContextProducer(Appendable out, File jsonFile, String focusElementPart)
+    public MarksContextProducer(String databaseName, String jsonName) throws ShemdrosParameterException
     {
-        super(out, jsonFile);
-        FocusInterventionist focusProducer = new FocusInterventionist(out, focusElementPart);
-        focusProducer.setFocusList(getFocusMonadSets());
-        setOut(focusProducer);
+        super(databaseName, jsonName);
     }
 
     public String getContextMark()
@@ -35,7 +32,7 @@ public class MarksContextProducer extends ContextProducer
     {
         addAttribute("context-mark", contextMark);
     }
-    
+
     @Override
     protected void renderMatchedObject(MatchedObject mo) throws EmdrosException, IOException
     {
