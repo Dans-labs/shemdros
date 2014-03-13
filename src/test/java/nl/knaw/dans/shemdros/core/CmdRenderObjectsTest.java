@@ -22,7 +22,7 @@ public class CmdRenderObjectsTest extends EnvironmentTest
     @BeforeClass
     public static void beforeClass() throws Exception
     {
-        ro = EmdrosFactory.newCmdRenderObjects(Database.DEFAULT, JsonFile.DEFAULT);
+        ro = EmdrosFactory.newCmdRenderObjects(Database.DEFAULT_DATABASE_NAME, JsonFile.DEFAULT);
     }
 
     @Test

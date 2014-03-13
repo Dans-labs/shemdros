@@ -21,6 +21,18 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		<property name="username" value=""/>
 		<property name="password" value=""/>
 		<property name="initialDB" value="/data/emdros/wivu/s3/bhs3"/>
+		<property name="maxPoolSize" value="10"/>
+	</bean>
+	
+	<bean class="nl.knaw.dans.shemdros.core.Database" name="otherDB">
+		<constructor-arg value="other"/>
+		<property name="outputKind" value="1"/>
+		<property name="charset" value="3"/>
+		<property name="backendKind" value="4"/>
+		<property name="hostname" value="localhost"/>
+		<property name="username" value=""/>
+		<property name="password" value=""/>
+		<property name="initialDB" value="/data/emdros/wivu/s3/bhs3"/>
 	</bean>
 	
 	<bean class="nl.knaw.dans.shemdros.core.JsonFile" name="defaultJF">
@@ -33,6 +45,7 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		<property name="databases">
 			<list>
 				<ref bean="defaultDB"/>
+				<ref bean="otherDB"/>
 			</list>
 		</property>
 		<property name="jsonFiles">

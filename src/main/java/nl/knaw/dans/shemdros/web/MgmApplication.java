@@ -15,11 +15,14 @@ public class MgmApplication extends ResourceConfig
 
     public MgmApplication() throws ShemdrosException
     {
-
+        // ShemdrosExceptions get xml-formatted output.
         register(ShemdrosExceptionMapper.class);
 
         // register writer for jersey-media-multipart.
         register(MultiPartWriter.class);
+
+        // register messagebodywriter for Collection.class.
+        register(CollectionWriter.class);
 
         packages("nl.knaw.dans.shemdros.web");
         logger.info("Started " + this);

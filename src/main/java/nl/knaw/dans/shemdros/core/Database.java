@@ -2,20 +2,80 @@ package nl.knaw.dans.shemdros.core;
 
 import java.util.Objects;
 
+/**
+ * Denomination of the properties of an Emdros database connection.
+ */
 public class Database
 {
 
-    public static final String DEFAULT = "default";
+    /**
+     * Standard name for a default database. <br/>
+     * {@value}
+     */
+    public static final String DEFAULT_DATABASE_NAME = "default";
+
+    /**
+     * Default 'kOKConsole'.
+     */
+    public static final int DEFAULT_OUTPUTKIND = 1;
+
+    /**
+     * Default 'kCSUTF8'.
+     */
+    public static final int DEFAULT_CHARSET = 3;
+
+    /**
+     * Default 'kSQLite3'.
+     */
+    public static final int DEFAULT_BACKENDKIND = 4;
+
+    /**
+     * Default value for hostname. <br/>
+     * {@value}
+     */
+    public static final String DEFAULT_HOSTNAME = "localhost";
+
+    /**
+     * Default value for username. <br/>
+     * {@value}
+     */
+    public static final String DEFAULT_USERNAME = "";
+
+    /**
+     * Default value for password. <br/>
+     * {@value}
+     */
+    public static final String DEFAULT_PASSWORD = "";
+
+    /**
+     * Default value for initialDB. <br/>
+     * {@value}
+     */
+    public static final String DEFAULT_INITIAL_DB = "/data/emdros/wivu/s3/bhs3";
+
+    /**
+     * Default value for maximum pool size in EnvPools for this database. <br/>
+     * {@value}
+     */
+    public static final int DEFAULT_MAX_POOLSIZE = 5;
 
     private final String name;
-    private int outputKind = 1;
-    private int charset = 3;
-    private int backendKind = 4;
-    private String hostname = "localhost";
-    private String username = "";
-    private String password = "";
-    private String initialDB = "/data/emdros/wivu/s3/bhs3";
 
+    private int outputKind = DEFAULT_OUTPUTKIND;
+    private int charset = DEFAULT_CHARSET;
+    private int backendKind = DEFAULT_BACKENDKIND;
+    private String hostname = DEFAULT_HOSTNAME;
+    private String username = DEFAULT_USERNAME;
+    private String password = DEFAULT_PASSWORD;
+    private String initialDB = DEFAULT_INITIAL_DB;
+    private int maxPoolSize = DEFAULT_MAX_POOLSIZE;
+
+    /**
+     * Create a new database denomination that shall be known under the given name.
+     * 
+     * @param name
+     *        a unique name for the database within the scope of the application.
+     */
     public Database(String name)
     {
         this.name = name;
@@ -26,11 +86,34 @@ public class Database
         return name;
     }
 
+    public int getMaxPoolSize()
+    {
+        return maxPoolSize;
+    }
+
+    public void setMaxPoolSize(int maxPoolSize)
+    {
+        this.maxPoolSize = maxPoolSize;
+    }
+
     public int getOutputKind()
     {
         return outputKind;
     }
 
+    /**
+     * Set the outputKind for the outputStream; we do not use the outputStream.
+     * 
+     * <pre>
+     * typedef enum {
+     *   kOKXML,
+     *   kOKConsole
+     * } eOutputKind;
+     * </pre>
+     * 
+     * @param outputKind
+     *        outputKind for the outputStream.
+     */
     public void setOutputKind(int outputKind)
     {
         this.outputKind = outputKind;
@@ -41,6 +124,21 @@ public class Database
         return charset;
     }
 
+    /**
+     * Set the character encoding for the outputStream; we do not use the outputStream.
+     * 
+     * <pre>
+     * typedef enum {
+     *   kCSASCII,
+     *   kCSISO_8859_1,
+     *   kCSISO_8859_8,
+     *   kCSUTF8
+     * } eCharsets;
+     * </pre>
+     * 
+     * @param charset
+     *        the character encoding for the outputStream
+     */
     public void setCharset(int charset)
     {
         this.charset = charset;
@@ -52,9 +150,16 @@ public class Database
     }
 
     /**
-     * Backend kind Used to distinguish among backends. enum eBackendKind { kBackendNone = 0, < No
-     * backend selected kPostgreSQL = 1, < PostgreSQL kMySQL = 2, < MySQL kSQLite2 = 3, < SQLite 2.X.X
-     * kSQLite3 = 4 < SQLite 3.X.X };
+     * <pre>
+     * enum eBackendKind {
+     *  kBackendNone = 0,/**< No backend selected 
+     *  kPostgreSQL = 1, /**< PostgreSQL 
+     *  kMySQL = 2,      /**< MySQL 
+     *  kSQLite2 = 3,    /**< SQLite 2.X.X 
+     *  kSQLite3 = 4     /**< SQLite 3.X.X
+     * };
+     * 
+     * <pre>
      */
     public void setBackendKind(int backendKind)
     {
@@ -88,9 +193,6 @@ public class Database
         return backendName;
     }
 
-    /**
-     * @return
-     */
     public String getHostname()
     {
         return hostname;
@@ -142,6 +244,7 @@ public class Database
         clone.outputKind = outputKind;
         clone.password = password;
         clone.username = username;
+        clone.maxPoolSize = maxPoolSize;
         return clone;
     }
 
@@ -157,7 +260,8 @@ public class Database
                     && Objects.equals(hostname, other.hostname) && Objects.equals(initialDB, other.initialDB) //
                     && outputKind == other.outputKind //
                     && Objects.equals(password, other.password) //
-                    && Objects.equals(username, other.username);
+                    && Objects.equals(username, other.username) //
+                    && Objects.equals(maxPoolSize, other.maxPoolSize);
         }
         return false;
     }
@@ -167,8 +271,10 @@ public class Database
     {
         return new StringBuilder().append(this.getClass().getName()) //
                 .append(" [").append("name=").append(name)//
-                .append(", hostname=").append(hostname).append(", inirialDB=").append(initialDB)//
-                .append("' backendname=").append(getBackendName())//
+                .append(", hostname=").append(hostname)//
+                .append(", initialDB=").append(initialDB)//
+                .append(", backendname=").append(getBackendName())//
+                .append(", maxPoolSize=").append(maxPoolSize)//
                 .append("]").toString();
     }
 

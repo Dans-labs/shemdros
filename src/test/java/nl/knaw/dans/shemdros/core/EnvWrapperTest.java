@@ -13,8 +13,6 @@ import jemdros.Sheaf;
 import nl.knaw.dans.shemdros.integration.EnvironmentTest;
 import nl.knaw.dans.shemdros.integration.IntegrationTest;
 
-import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
@@ -48,7 +46,7 @@ public class EnvWrapperTest extends EnvironmentTest
     @Test
     public void testStringQueryExecution() throws Exception
     {
-        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT);
+        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT_DATABASE_NAME);
         EnvWrapper wrapper = envPool.getPooledEnvironment();
         EmdrosEnv env = wrapper.getEnv();
         assertNotNull(env);
@@ -60,7 +58,7 @@ public class EnvWrapperTest extends EnvironmentTest
     @Test(expected = ShemdrosCompileException.class)
     public void testStringQueryCompilerError() throws Exception
     {
-        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT);
+        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT_DATABASE_NAME);
         EnvWrapper wrapper = envPool.getPooledEnvironment();
         try
         {
@@ -99,7 +97,7 @@ public class EnvWrapperTest extends EnvironmentTest
     @Test
     public void testFileQueryExecution() throws Exception
     {
-        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT);
+        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT_DATABASE_NAME);
         EnvWrapper wrapper = envPool.getPooledEnvironment();
         EmdrosEnv env = wrapper.getEnv();
         assertNotNull(env);
@@ -111,7 +109,7 @@ public class EnvWrapperTest extends EnvironmentTest
     @Test(expected = ShemdrosCompileException.class)
     public void testFileQueryCompilerError() throws Exception
     {
-        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT);
+        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT_DATABASE_NAME);
         EnvWrapper wrapper = envPool.getPooledEnvironment();
         try
         {
@@ -151,7 +149,7 @@ public class EnvWrapperTest extends EnvironmentTest
     @Test
     public void testSheafextraction() throws Exception
     {
-        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT);
+        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT_DATABASE_NAME);
         EnvWrapper wrapper = envPool.getPooledEnvironment();
         EmdrosEnv env = wrapper.getEnv();
         wrapper.execute(getFileQuery());
@@ -170,7 +168,7 @@ public class EnvWrapperTest extends EnvironmentTest
     @Test
     public void testSheafextraction2() throws Exception
     {
-        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT);
+        EnvPool envPool = EmdrosFactory.getEnvPool(Database.DEFAULT_DATABASE_NAME);
         EnvWrapper wrapper = envPool.getPooledEnvironment();
         EmdrosEnv env = wrapper.getEnv();
         wrapper.execute(getFileQuery());

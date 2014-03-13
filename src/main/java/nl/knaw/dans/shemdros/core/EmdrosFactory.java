@@ -68,7 +68,8 @@ public class EmdrosFactory
         synchronized (databaseMap)
         {
             databaseMap.put(database.getName(), database);
-            envPoolMap.put(database.getName(), new EnvPool(database));
+            EnvPool envPool = new EnvPool(database);
+            envPoolMap.put(database.getName(), envPool);
             logger.debug("Digested database: {}", database.toString());
         }
     }

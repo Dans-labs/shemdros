@@ -29,7 +29,7 @@ public class MarksContextProducerTest extends EnvironmentTest
         String name = queryFile.getName().replace('.', '_');
         OutputStream output = new FileOutputStream("target/" + name + "-markscontext.xml");
 
-        MarksContextProducer mc = new MarksContextProducer(Database.DEFAULT, JsonFile.DEFAULT);
+        MarksContextProducer mc = new MarksContextProducer(Database.DEFAULT_DATABASE_NAME, JsonFile.DEFAULT);
         // mc.setContextMark("");
         mc.setOffsetFirst(2);
         mc.setOffsetLast(4);

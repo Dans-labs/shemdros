@@ -1,8 +1,5 @@
 package nl.knaw.dans.shemdros.pro;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
@@ -55,7 +52,7 @@ public class LevelContextProducerTest extends EnvironmentTest
         String name = queryFile.getName().replace('.', '_');
         OutputStream output = new FileOutputStream("target/" + name + "-levelcontext.xml");
 
-        LevelContextProducer lc = new LevelContextProducer(Database.DEFAULT, JsonFile.DEFAULT);
+        LevelContextProducer lc = new LevelContextProducer(Database.DEFAULT_DATABASE_NAME, JsonFile.DEFAULT);
         lc.setOffsetFirst(2);
         lc.setOffsetLast(4);
         lc.setContextLevel(0);

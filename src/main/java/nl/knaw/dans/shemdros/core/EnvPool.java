@@ -64,8 +64,10 @@ public class EnvPool
             }
             if (envWrapper == null)
             {
-                EmdrosEnv env = getEmdrosEnv(eOutputKind.swigToEnum(database.getOutputKind()), eCharsets.swigToEnum(database.getCharset()),
-                        database.getHostname(), database.getUsername(), database.getPassword(), database.getInitialDB(),
+                EmdrosEnv env = getEmdrosEnv(eOutputKind.swigToEnum(database.getOutputKind()),//
+                        eCharsets.swigToEnum(database.getCharset()),//
+                        database.getHostname(), database.getUsername(), database.getPassword(),//
+                        database.getInitialDB(), //
                         eBackendKind.swigToEnum(database.getBackendKind()));
                 envWrapper = new EnvWrapper(env, database.getName());
                 pool.add(envWrapper);
@@ -80,6 +82,10 @@ public class EnvPool
         synchronized (pool)
         {
             wrapper.setBusy(false);
+            while (pool.size() > database.getMaxPoolSize())
+            {
+                pool.remove(0);
+            }
         }
     }
 
@@ -89,6 +95,16 @@ public class EnvPool
         {
             return pool.size();
         }
+    }
+
+    @Override
+    public String toString()
+    {
+        return new StringBuilder().append(this.getClass().getName()) //
+                .append(" [").append("database=").append(database.toString())//
+                .append(", poolsize=").append(size())//
+
+                .append("]").toString();
     }
 
 }

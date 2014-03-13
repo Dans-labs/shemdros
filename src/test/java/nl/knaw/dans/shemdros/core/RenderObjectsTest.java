@@ -16,8 +16,8 @@ public class RenderObjectsTest extends EnvironmentTest
     @Ignore("Cannot use jemdros.RenderObjects because of error in native library libharvest.so")
     public void testName() throws Exception
     {
-        EnvWrapper envWrapper = EmdrosFactory.getEnvPool(Database.DEFAULT).getPooledEnvironment();
-        String db_name = EmdrosFactory.getDatabase(Database.DEFAULT).getInitialDB();
+        EnvWrapper envWrapper = EmdrosFactory.getEnvPool(Database.DEFAULT_DATABASE_NAME).getPooledEnvironment();
+        String db_name = EmdrosFactory.getDatabase(Database.DEFAULT_DATABASE_NAME).getInitialDB();
         String jsonFilename = new File("src/test/resources/core/fetchinfo.json").getAbsolutePath();
 
         ro = new jemdros.RenderObjects(envWrapper.getEnv(), db_name, jsonFilename);

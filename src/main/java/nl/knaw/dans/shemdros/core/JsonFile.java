@@ -55,4 +55,15 @@ public class JsonFile
         return clone;
     }
 
+    @Override
+    public String toString()
+    {
+        return new StringBuilder().append(this.getClass().getName()) //
+                .append(" [").append("name=").append(name)//
+                .append(", path=").append(path)//
+                .append(", focusElementPart=").append(focusElementPart)//
+
+                .append("]").toString();
+    }
+
 }

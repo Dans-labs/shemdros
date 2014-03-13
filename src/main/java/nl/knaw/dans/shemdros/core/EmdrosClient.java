@@ -12,7 +12,7 @@ public class EmdrosClient
 
     public <T> T execute(String query, MqlResultConsumer<T> consumer) throws ShemdrosException
     {
-        return execute(Database.DEFAULT, query, consumer);
+        return execute(Database.DEFAULT_DATABASE_NAME, query, consumer);
     }
 
     public <T> T execute(String databaseName, String query, MqlResultConsumer<T> consumer) throws ShemdrosException
@@ -41,7 +41,7 @@ public class EmdrosClient
 
     public <T> T execute(File query, MqlResultConsumer<T> consumer) throws ShemdrosException
     {
-        return execute(Database.DEFAULT, query, consumer);
+        return execute(Database.DEFAULT_DATABASE_NAME, query, consumer);
     }
 
     public <T> T execute(String databaseName, File query, MqlResultConsumer<T> consumer) throws ShemdrosException

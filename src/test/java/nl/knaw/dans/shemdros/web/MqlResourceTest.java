@@ -1,8 +1,7 @@
 package nl.knaw.dans.shemdros.web;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 import java.io.FileInputStream;
 import java.util.List;
@@ -29,21 +28,26 @@ import org.junit.experimental.categories.Category;
 public class MqlResourceTest
 {
 
+    private static Client client;
     private static WebTarget webTarget;
 
     @BeforeClass
     public static void beforeClass() throws Exception
     {
-        Client client = ClientBuilder.newClient().register(MultiPartFeature.class);
+        client = ClientBuilder.newClient().register(MultiPartFeature.class);
         webTarget = client.target("http://localhost:8080/shemdros/mql/");
     }
 
     @Test
-    public void testingTest() throws Exception
+    public void appWadl() throws Exception
     {
-        Response response = webTarget.path("test").request().get();
-        String answer = response.readEntity(String.class);
-        assertThat(answer, is("OK Testing"));
+        WebTarget target = client.target("http://localhost:8080/shemdros/");
+        Response response = target.path("application.wadl").request().get();
+
+        assertThat(response.getStatus(), is(200));
+        assertThat(response.getMediaType().getType(), is("application"));
+        assertThat(response.getMediaType().getSubtype(), is("vnd.sun.wadl+xml"));
+        // System.err.println(response.readEntity(String.class));
     }
 
     @Test
@@ -148,28 +152,26 @@ public class MqlResourceTest
         Response response = webTarget.path("execute") //
                 .queryParam("renderer", "mark").queryParam("context-mark", "context").request(MultiPartMediaTypes.MULTIPART_MIXED) //
                 .post(Entity.entity(query, MediaType.TEXT_PLAIN));
-        
-        
 
         assertThat(response.getStatus(), is(200));
         assertThat(response.getMediaType().toString(), startsWith(MultiPartMediaTypes.MULTIPART_MIXED));
-        
+
         MultiPart multiPart = response.readEntity(MultiPart.class);
         List<BodyPart> parts = multiPart.getBodyParts();
         assertThat(parts.size(), is(2));
         BodyPart first = parts.get(0);
         String firstXml = first.getEntityAs(String.class);
-        //System.err.println(firstXml);
+        // System.err.println(firstXml);
         assertThat(firstXml, startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<mql-results>"));
-        
+
         String secondXml = parts.get(1).getEntityAs(String.class);
-        //System.err.println(secondXml);
+        // System.err.println(secondXml);
         assertThat(
                 secondXml,
                 startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<context_list producer=\"nl.knaw.dans.shemdros.pro.MarksContextProducer\" context-mark=\"context\""));
-        
-//        String mqlResult = response.readEntity(String.class);
-//        System.err.println(mqlResult);
+
+        // String mqlResult = response.readEntity(String.class);
+        // System.err.println(mqlResult);
     }
 
 }

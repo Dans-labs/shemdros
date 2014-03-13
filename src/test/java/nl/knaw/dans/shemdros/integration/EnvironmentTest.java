@@ -15,7 +15,7 @@ public abstract class EnvironmentTest
     {
         testprops = new TestProps();
         new Environment(testprops.getString("libjemdrospath"), testprops.getString("libharvestpath"));
-        EmdrosFactory.instance().addDatabase(new Database(Database.DEFAULT));
+        EmdrosFactory.instance().addDatabase(new Database(Database.DEFAULT_DATABASE_NAME));
         JsonFile defaultJsonFile = new JsonFile(JsonFile.DEFAULT, JSON_FILE);
         defaultJsonFile.setFocusElementPart("<w fm=");
         EmdrosFactory.instance().addJsonFile(defaultJsonFile);

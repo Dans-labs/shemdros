@@ -5,6 +5,7 @@ import java.io.File;
 import jemdros.EmdrosEnv;
 import jemdros.EmdrosException;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,10 @@ public class EnvWrapper
 
     public boolean execute(String query, boolean printResult, boolean printErrors) throws ShemdrosException
     {
+        if (StringUtils.isBlank(query))
+        {
+            throw new ShemdrosCompileException("The query cannot be blank.");
+        }
         long start = System.currentTimeMillis();
         boolean[] bCompilerResult = new boolean[1];
         boolean bDBResult = false;
@@ -67,8 +72,7 @@ public class EnvWrapper
         {
             throw new ShemdrosException(e.getClass().getSimpleName() + ": " + e.what() + "\n" + env.getDBError());
         }
-        logger.debug("Excecuted query against database '{}'. {}, {}, in {} ms.", 
-                databaseName, bCompilerResult, bDBResult, System.currentTimeMillis() - start);
+        logger.debug("Excecuted query against database '{}'. {}, {}, in {} ms.", databaseName, bCompilerResult, bDBResult, System.currentTimeMillis() - start);
         if (!bCompilerResult[0])
         {
             throw new ShemdrosCompileException(env.getCompilerError());

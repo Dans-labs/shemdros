@@ -35,7 +35,7 @@ public class XmlMqlResultProducer implements StreamingMqlResultConsumer
 {
 
     private static final Logger logger = LoggerFactory.getLogger(XmlMqlResultProducer.class);
-    
+
     private final String encoding;
     private XMLStreamWriter out;
     private boolean newLine;
