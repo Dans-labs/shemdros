@@ -32,7 +32,7 @@ public class ShemdrosResource
     private UriInfo uriInfo;
 
     @GET
-    @Produces(MediaType.TEXT_HTML)
+    @Produces(MediaType.TEXT_HTML + Shemdros.DEFAULT_CHARSET)
     public Response noPath()
     {
         logger.debug("recieved GET \"\" (no path). {}", uriInfo.getAbsolutePath().toString());
@@ -45,7 +45,7 @@ public class ShemdrosResource
 
     @GET
     @Path("databases")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN + Shemdros.DEFAULT_CHARSET)
     public Response getDatabases()
     {
         logger.debug("recieved GET databases.");
@@ -56,7 +56,7 @@ public class ShemdrosResource
 
     @GET
     @Path("databases/list")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN + Shemdros.DEFAULT_CHARSET)
     public Response listDatabases()
     {
         logger.debug("recieved GET databases/list.");
@@ -65,7 +65,7 @@ public class ShemdrosResource
 
     @GET
     @Path("jsonfiles")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN + Shemdros.DEFAULT_CHARSET)
     public Response getJsonFiles()
     {
         logger.debug("recieved GET jsonfiles.");
@@ -76,7 +76,7 @@ public class ShemdrosResource
 
     @GET
     @Path("jsonfiles/list")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN + Shemdros.DEFAULT_CHARSET)
     public Response listJsonFiles()
     {
         logger.debug("recieved GET jsonfiles/list.");
@@ -85,7 +85,7 @@ public class ShemdrosResource
 
     @GET
     @Path("jsonfiles/{id}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + Shemdros.DEFAULT_CHARSET)
     public Response getJsonFile(@PathParam("id")
     String id) throws ShemdrosException
     {
@@ -117,7 +117,7 @@ public class ShemdrosResource
 
     @GET
     @Path("envpools")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN + Shemdros.DEFAULT_CHARSET)
     public Response getEnvPools()
     {
         logger.debug("recieved GET envpools.");

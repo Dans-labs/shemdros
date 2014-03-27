@@ -7,7 +7,7 @@
 					"start" : "{{ setvar 'curBook' }}{{ feature 0 }}{{ setvarend }}{{ setvar 'division' }}{{ dictlookup 'book2division' var 'curBook' 'Unknown' }}{{ setvarend }}",
 					"get" : ["book"],
 					"end" : "",
-		  		},
+				},
 		  		"verse" : {
 					"start" : "\n<v d=\"{{ emitvar 'division' }}\" b=\"{{ emitvar 'curBook' }}\" c=\"{{ feature 1 }}\" v=\"{{ feature 2 }}\">",
 					"get" : ["book", "chapter", "verse"],

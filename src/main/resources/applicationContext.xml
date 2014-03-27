@@ -39,6 +39,7 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		<constructor-arg value="default"/>
 		<constructor-arg value="/home/user/git/shebanq/shemdros/src/test/resources/core/fetchinfo2.json"/>
 		<property name="focusElementPart" value="&lt;w fm="/>
+		
 	</bean>
 	
 	<bean class="nl.knaw.dans.shemdros.core.EmdrosFactory" name="emdrosFactory">

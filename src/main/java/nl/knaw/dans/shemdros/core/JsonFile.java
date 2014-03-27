@@ -11,6 +11,7 @@ public class JsonFile
     private final String path;
 
     private String focusElementPart;
+    private String tagOrder;
 
     public JsonFile(String name, String path)
     {
@@ -48,10 +49,21 @@ public class JsonFile
         this.focusElementPart = focusElementPart;
     }
 
+    public String getTagOrder()
+    {
+        return tagOrder;
+    }
+
+    public void setTagOrder(String tagOrder)
+    {
+        this.tagOrder = tagOrder;
+    }
+
     public JsonFile clone()
     {
         JsonFile clone = new JsonFile(name, path);
         clone.focusElementPart = focusElementPart;
+        clone.tagOrder = tagOrder;
         return clone;
     }
 
@@ -62,7 +74,7 @@ public class JsonFile
                 .append(" [").append("name=").append(name)//
                 .append(", path=").append(path)//
                 .append(", focusElementPart=").append(focusElementPart)//
-
+                .append(", tagOrder=").append(tagOrder)//
                 .append("]").toString();
     }
 

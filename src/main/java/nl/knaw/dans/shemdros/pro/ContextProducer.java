@@ -206,11 +206,15 @@ public abstract class ContextProducer implements StreamingMqlResultConsumer
     public void setOutputStream(OutputStream output) throws ShemdrosParameterException
     {
         BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(output));
+        
         JsonFile jsonFile = EmdrosFactory.getJsonFile(jsonName);
         String focusElementPart = jsonFile.getFocusElementPart();
         FocusInterventionist focusProducer = new FocusInterventionist(buffer, focusElementPart);
         focusProducer.setFocusList(getFocusMonadSets());
-        out = focusProducer;
+        
+        VerseSentenceOrderInterventionist orderInterventionist = new VerseSentenceOrderInterventionist(focusProducer);
+        
+        out = orderInterventionist;
     }
 
     protected CmdRenderObjects getRo()

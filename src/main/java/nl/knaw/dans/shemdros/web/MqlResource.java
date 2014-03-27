@@ -1,5 +1,6 @@
 package nl.knaw.dans.shemdros.web;
 
+import java.text.ParseException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import nl.knaw.dans.shemdros.pro.MarksContextProducer;
 import nl.knaw.dans.shemdros.pro.XmlMqlResultProducer;
 
 import org.glassfish.jersey.media.multipart.BodyPart;
+import org.glassfish.jersey.media.multipart.ContentDisposition;
 import org.glassfish.jersey.media.multipart.MultiPart;
 import org.glassfish.jersey.media.multipart.MultiPartMediaTypes;
 import org.slf4j.Logger;
@@ -61,7 +63,7 @@ public class MqlResource
     private UriInfo uriInfo;
 
     @GET
-    @Produces(MediaType.TEXT_HTML)
+    @Produces(MediaType.TEXT_HTML + Shemdros.DEFAULT_CHARSET)
     public Response noPath()
     {
         logger.debug("recieved GET \"\" (no path). {}", uriInfo.getAbsolutePath().toString());
@@ -74,7 +76,7 @@ public class MqlResource
 
     @GET
     @Path("result-formats")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN + Shemdros.DEFAULT_CHARSET)
     public Response listResultFormats()
     {
         logger.debug("recieved GET result-formats");
@@ -85,7 +87,7 @@ public class MqlResource
 
     @GET
     @Path("renderers")
-    @Produces(MediaType.TEXT_PLAIN)
+    @Produces(MediaType.TEXT_PLAIN + Shemdros.DEFAULT_CHARSET)
     public Response listRenderers()
     {
         logger.debug("recieved GET renderers");
@@ -96,7 +98,7 @@ public class MqlResource
 
     @POST
     @Path("query")
-    @Produces(MediaType.TEXT_XML)
+    @Produces(MediaType.TEXT_XML + Shemdros.DEFAULT_CHARSET)
     public Response query(final String query, //
             @QueryParam("database")
             @DefaultValue(Database.DEFAULT_DATABASE_NAME)
@@ -106,13 +108,17 @@ public class MqlResource
             String resultFormat) throws ShemdrosException
     {
         logger.debug("recieved POST query, result-format={}", resultFormat);
+        //logger.debug("query is '{}'", query);
         MQLResult mqlResult = emdrosClient.execute(database, query, new DefaultMQLResultConsumer());
-        return Response.ok(getQueryResult(mqlResult, resultFormat)).type(MediaType.TEXT_XML_TYPE).build();
+        return Response.ok(getQueryResult(mqlResult, resultFormat))//
+                .type(MediaType.TEXT_XML_TYPE)//
+                .encoding(Shemdros.DEFAULT_CHARACTER_ENCODING)
+                .build();
     }
 
     @POST
     @Path("render")
-    @Produces(MediaType.TEXT_XML)
+    @Produces(MediaType.TEXT_XML + Shemdros.DEFAULT_CHARSET)
     public Response render(final String query, //
             @QueryParam("database")
             @DefaultValue(Database.DEFAULT_DATABASE_NAME)
@@ -139,7 +145,10 @@ public class MqlResource
         logger.debug("recieved POST render, renderer={}", renderer);
         MQLResult mqlResult = emdrosClient.execute(database, query, new DefaultMQLResultConsumer());
         MQLResultStream resultStream = getRenderResult(mqlResult, renderer, database, jsonName, contextLevel, contextMark, offsetFirst, offsetLast);
-        return Response.ok(resultStream).type(MediaType.TEXT_XML_TYPE).build();
+        return Response.ok(resultStream) //
+                .type(MediaType.TEXT_XML_TYPE)//
+                .encoding(Shemdros.DEFAULT_CHARACTER_ENCODING) //
+                .build();
     }
 
     @POST
@@ -177,10 +186,22 @@ public class MqlResource
         MQLResultStream renderResult = getRenderResult(mqlResult, renderer, database, //
                 jsonName, contextLevel, contextMark, offsetFirst, offsetLast);
         MultiPart multiPart = new MultiPart();
-
+        
+        BodyPart queryPart = new BodyPart(queryResult, MediaType.TEXT_XML_TYPE);
+        BodyPart resultPart = new BodyPart(renderResult, MediaType.TEXT_XML_TYPE);
+        try
+        {
+            queryPart.setContentDisposition(new ContentDisposition("attachment; filename=\"mql-result.xml\""));
+            resultPart.setContentDisposition(new ContentDisposition("attachment; filename=\"mql-context.xml\""));
+        }
+        catch (ParseException e)
+        {
+            throw new ShemdrosException(e);
+        }
+        
         multiPart //
-                .bodyPart(new BodyPart(queryResult, MediaType.TEXT_XML_TYPE)) //
-                .bodyPart(new BodyPart(renderResult, MediaType.TEXT_XML_TYPE)); //
+                .bodyPart(queryPart) //
+                .bodyPart(resultPart); //
 
         return multiPart; // Response.ok(multiPart).type(MultiPartMediaTypes.MULTIPART_MIXED).build();
     }
