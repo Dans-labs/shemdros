@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class FooTest
 {
-    
+
     @Test
     public void testName() throws Exception
     {
@@ -18,7 +18,7 @@ public class FooTest
         System.err.println(cd.getSize());
         System.err.println(cd.getCreationDate());
         System.err.println(cd.getReadDate());
-        
+
         System.err.println(cd);
     }
 

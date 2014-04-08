@@ -108,12 +108,11 @@ public class MqlResource
             String resultFormat) throws ShemdrosException
     {
         logger.debug("recieved POST query, result-format={}", resultFormat);
-        //logger.debug("query is '{}'", query);
+        // logger.debug("query is '{}'", query);
         MQLResult mqlResult = emdrosClient.execute(database, query, new DefaultMQLResultConsumer());
         return Response.ok(getQueryResult(mqlResult, resultFormat))//
                 .type(MediaType.TEXT_XML_TYPE)//
-                .encoding(Shemdros.DEFAULT_CHARACTER_ENCODING)
-                .build();
+                .encoding(Shemdros.DEFAULT_CHARACTER_ENCODING).build();
     }
 
     @POST
@@ -186,7 +185,7 @@ public class MqlResource
         MQLResultStream renderResult = getRenderResult(mqlResult, renderer, database, //
                 jsonName, contextLevel, contextMark, offsetFirst, offsetLast);
         MultiPart multiPart = new MultiPart();
-        
+
         BodyPart queryPart = new BodyPart(queryResult, MediaType.TEXT_XML_TYPE);
         BodyPart resultPart = new BodyPart(renderResult, MediaType.TEXT_XML_TYPE);
         try
@@ -198,7 +197,7 @@ public class MqlResource
         {
             throw new ShemdrosException(e);
         }
-        
+
         multiPart //
                 .bodyPart(queryPart) //
                 .bodyPart(resultPart); //

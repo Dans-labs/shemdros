@@ -11,6 +11,8 @@ public class Environment
 
     private static final java.lang.reflect.Field LIBRARIES;
 
+    private static final int MAX_TRY_COUNT_LOAD_LIBRARIES = 5;
+
     static
     {
         try
@@ -53,37 +55,60 @@ public class Environment
         loadLibrary(libjemdrosPath, libharvestPath);
     }
 
+    /**
+     * Loading native libraries in a container environment like Tomcat has some drawbacks. If libraries
+     * are already loaded, this method tries to unload libraries by calling <code>System.gc()</code> a
+     * maximized number of times.
+     * 
+     * @param libjemdrosPath
+     *        absolute path to libjemdros.so
+     * @param libharvestPath
+     *        absolute path to libharvest.so
+     */
     private void loadLibrary(String libjemdrosPath, String libharvestPath)
     {
         try
         {
-            boolean loaded = false;
-            final String[] libraries = getLoadedLibraries(ClassLoader.getSystemClassLoader());
-            for (int i = 0; i < libraries.length; i++)
+            int tryCount = 0;
+            while (isEmdrosLoaded() && tryCount < MAX_TRY_COUNT_LOAD_LIBRARIES)
             {
-                if (libraries[i].contains("emdros"))
-                {
-                    logger.info("Emdros native library already loaded: '{}'.", libraries[i]);
-                    loaded = true;
-                }
+                tryCount++;
+                System.gc();
+                Thread.sleep(5000L);
+                logger.debug("Tried unloading libraries {} times.", tryCount);
             }
-            if (!loaded)
+            if (isEmdrosLoaded())
             {
-                System.load(libjemdrosPath);
-                logger.info("Loaded dynamic library at path '{}'.", libjemdrosPath);
-                System.load(libharvestPath);
-                logger.info("Loaded dynamic library at path '{}'.", libharvestPath);
+                throw new RuntimeException("Could not load native libraries because already loaded in another classloader.");
             }
-
+            Runtime.getRuntime().load(libjemdrosPath);
+            logger.info("==> Loaded dynamic library at path '{}'.", libjemdrosPath);
+            Runtime.getRuntime().load(libharvestPath);
+            logger.info("==> Loaded dynamic library at path '{}'.", libharvestPath);
         }
         catch (IllegalArgumentException e)
         {
             throw new RuntimeException(e);
         }
-        catch (IllegalAccessException e)
+        catch (Throwable t)
         {
-            throw new RuntimeException(e);
+            logger.info("Unknown exception while loading native libraries.", t);
         }
+    }
+
+    private static boolean isEmdrosLoaded() throws IllegalAccessException
+    {
+        boolean loaded = false;
+        final String[] libraries = getLoadedLibraries(ClassLoader.getSystemClassLoader());
+        for (int i = 0; i < libraries.length; i++)
+        {
+            if (libraries[i].contains("emdros"))
+            {
+                logger.info("Emdros native library already loaded: '{}'.", libraries[i]);
+                loaded = true;
+            }
+        }
+        return loaded;
     }
 
 }

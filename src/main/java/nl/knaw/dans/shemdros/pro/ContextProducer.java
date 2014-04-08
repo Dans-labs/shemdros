@@ -38,8 +38,8 @@ public abstract class ContextProducer implements StreamingMqlResultConsumer
     private Appendable out;
 
     private int strawLevel = -1;
-    private List<MonadSet> focusMonadSets = new ArrayList<>();
-    private List<MonadSet> contextMonadSets = new ArrayList<>();
+    private List<MonadSet> focusMonadSets = new ArrayList<MonadSet>();
+    private List<MonadSet> contextMonadSets = new ArrayList<MonadSet>();
 
     private int offsetFirst = 0;
     private int offsetLast = 0;
@@ -206,14 +206,14 @@ public abstract class ContextProducer implements StreamingMqlResultConsumer
     public void setOutputStream(OutputStream output) throws ShemdrosParameterException
     {
         BufferedWriter buffer = new BufferedWriter(new OutputStreamWriter(output));
-        
+
         JsonFile jsonFile = EmdrosFactory.getJsonFile(jsonName);
         String focusElementPart = jsonFile.getFocusElementPart();
         FocusInterventionist focusProducer = new FocusInterventionist(buffer, focusElementPart);
         focusProducer.setFocusList(getFocusMonadSets());
-        
+
         VerseSentenceOrderInterventionist orderInterventionist = new VerseSentenceOrderInterventionist(focusProducer);
-        
+
         out = orderInterventionist;
     }
 

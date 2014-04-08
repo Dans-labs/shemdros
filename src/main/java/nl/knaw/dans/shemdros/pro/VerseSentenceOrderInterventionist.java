@@ -5,13 +5,13 @@ import java.io.IOException;
 
 public class VerseSentenceOrderInterventionist implements Appendable, Flushable
 {
-    
+
     private final Appendable wrapped;
     private CharSequence verseStart;
     private CharSequence sentenceStart;
     private CharSequence sentenceEnd;
     private CharSequence verseEnd;
-    
+
     public VerseSentenceOrderInterventionist(Appendable wrapped)
     {
         this.wrapped = wrapped;
@@ -32,9 +32,9 @@ public class VerseSentenceOrderInterventionist implements Appendable, Flushable
         String xml = csq.toString();
         if (xml.startsWith("<v "))
         {
-           verseStart = csq;
-           writeStart();
-           return this;
+            verseStart = csq;
+            writeStart();
+            return this;
         }
         else if (xml.startsWith("<s "))
         {
@@ -54,7 +54,7 @@ public class VerseSentenceOrderInterventionist implements Appendable, Flushable
             writeEnd();
             return this;
         }
-        else 
+        else
         {
             wrapped.append(csq);
         }
@@ -71,7 +71,7 @@ public class VerseSentenceOrderInterventionist implements Appendable, Flushable
             sentenceStart = null;
         }
     }
-    
+
     private void writeEnd() throws IOException
     {
         if (sentenceEnd != null && verseEnd != null)
