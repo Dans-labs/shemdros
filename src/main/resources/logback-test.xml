@@ -7,8 +7,17 @@
 		</encoder>
 	</appender>
 
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
 		<file>/var/log/shemdros/shemdros.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>shemdros.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+			<!-- keep 30 days' worth of history -->
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
 
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
@@ -19,7 +28,7 @@
 
 
 	<root level="debug">
-		<appender-ref ref="CONSOLE" />
+		<!-- <appender-ref ref="CONSOLE" /> -->
 		<appender-ref ref="FILE" />
 	</root>
 

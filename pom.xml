@@ -19,7 +19,7 @@
 		<java.version>1.7</java.version>
 		<!--maven variable which points to your local repository -->
 		<internal.repo.path>file:///mnt/hgfs/ecco/Dev2/mvn-repo/</internal.repo.path>
-
+		
 		<lib.directory>${project.build.directory}/lib</lib.directory>
 		<jemdros.version>3.4.0.pre12</jemdros.version>
 		<libjemdros.version>4.0.0</libjemdros.version>
