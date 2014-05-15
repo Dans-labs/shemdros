@@ -10,10 +10,13 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 import nl.knaw.dans.shemdros.integration.EnvironmentTest;
+import nl.knaw.dans.shemdros.integration.IntegrationTest;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
+@Category(IntegrationTest.class)
 public class CmdRenderObjectsTest extends EnvironmentTest
 {
 

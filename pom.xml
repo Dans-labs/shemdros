@@ -11,14 +11,14 @@
 	<groupId>nl.knaw.dans</groupId>
 	<artifactId>shemdros</artifactId>
 	<packaging>war</packaging>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>emdros-api</name>
 	<description>web-serving the emdros api</description>
 
 	<properties>
 		<java.version>1.7</java.version>
 		<!--maven variable which points to your local repository -->
-		<internal.repo.path>file:///mnt/hgfs/ecco/Dev2/mvn-repo/</internal.repo.path>
+		<internal.repo.path>file:///Users/ecco/Dev2/mvn-repo/</internal.repo.path>
 		
 		<lib.directory>${project.build.directory}/lib</lib.directory>
 		<jemdros.version>3.4.0.pre12</jemdros.version>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<Pattern>%-5level %r [%thread]: %msg %caller{1}</Pattern>
+		</encoder>
+	</appender>
+
+
+
+	<root level="debug">
+		<appender-ref ref="CONSOLE" />
+	</root>
+
+	<!-- For ANSI Eclipse console see http://www.mihai-nita.net/eclipse/ -->
+
+</configuration>
