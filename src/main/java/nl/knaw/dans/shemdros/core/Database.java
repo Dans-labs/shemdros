@@ -1,6 +1,6 @@
 package nl.knaw.dans.shemdros.core;
 
-import java.util.Objects;
+// import java.util.Objects;
 
 /**
  * Denomination of the properties of an Emdros database connection.
@@ -254,14 +254,61 @@ public class Database
         if (obj instanceof Database)
         {
             Database other = (Database) obj;
-            return Objects.equals(name, other.name) //
-                    && backendKind == other.backendKind //
-                    && charset == other.charset //
-                    && Objects.equals(hostname, other.hostname) && Objects.equals(initialDB, other.initialDB) //
-                    && outputKind == other.outputKind //
-                    && Objects.equals(password, other.password) //
-                    && Objects.equals(username, other.username) //
-                    && Objects.equals(maxPoolSize, other.maxPoolSize);
+            boolean eq = true;
+            if (this.name == null)
+            {
+                eq &= other.name == null;
+            }
+            else
+            {
+                eq &= this.name.equals(other.name);
+            }
+            eq &= this.backendKind == other.backendKind;
+            eq &= this.charset == other.charset;
+            eq &= this.outputKind == other.outputKind;
+            eq &= this.maxPoolSize == other.maxPoolSize;
+            if (this.hostname == null)
+            {
+                eq &= other.hostname == null;
+            }
+            else
+            {
+                eq &= this.hostname.equals(other.hostname);
+            }
+            if (this.password == null)
+            {
+                eq &= other.password == null;
+            }
+            else
+            {
+                eq &= this.password.equals(other.password);
+            }
+            if (this.initialDB == null)
+            {
+                eq &= other.initialDB == null;
+            }
+            else
+            {
+                eq &= this.initialDB.equals(other.initialDB);
+            }
+            if (this.username == null)
+            {
+                eq &= other.username == null;
+            }
+            else
+            {
+                eq &= this.username.equals(other.username);
+            }
+            return eq;
+            // return Objects.equals(name, other.name) //
+            // && backendKind == other.backendKind //
+            // && charset == other.charset //
+            // && Objects.equals(hostname, other.hostname) //
+            // && Objects.equals(initialDB, other.initialDB) //
+            // && outputKind == other.outputKind //
+            // && Objects.equals(password, other.password) //
+            // && Objects.equals(username, other.username) //
+            // && Objects.equals(maxPoolSize, other.maxPoolSize);
         }
         return false;
     }
