@@ -26,6 +26,8 @@ import nl.knaw.dans.shemdros.core.ShemdrosParameterException;
 import nl.knaw.dans.shemdros.pro.ContextProducer;
 import nl.knaw.dans.shemdros.pro.LevelContextProducer;
 import nl.knaw.dans.shemdros.pro.MarksContextProducer;
+import nl.knaw.dans.shemdros.pro.CsvMonadSetProducer;
+import nl.knaw.dans.shemdros.pro.XmlMonadSetProducer;
 import nl.knaw.dans.shemdros.pro.XmlMqlResultProducer;
 
 import org.glassfish.jersey.media.multipart.BodyPart;
@@ -40,6 +42,8 @@ public class MqlResource
 {
 
     public static final String RESULT_FORMAT_MQL_XML = "mql-xml";
+    public static final String RESULT_FORMAT_MONADSET_XML = "monadset-xml";
+    public static final String RESULT_FORMAT_MONADSET_CSV = "monadset-csv";
     public static final String RENDER_AT_LEVEL = "level";
     public static final String RENDER_AT_MARK = "mark";
     private static final Logger logger = LoggerFactory.getLogger(MqlResource.class);
@@ -47,14 +51,18 @@ public class MqlResource
     public static List<String> getResultFormats()
     {
         return Arrays.asList(new String[] {//
-                RESULT_FORMAT_MQL_XML});
+                RESULT_FORMAT_MQL_XML, //
+                        RESULT_FORMAT_MONADSET_XML, //
+                        RESULT_FORMAT_MONADSET_CSV, //
+                });
     }
 
     public static List<String> getRenderers()
     {
         return Arrays.asList(new String[] {//
                 RENDER_AT_LEVEL,//
-                        RENDER_AT_MARK});
+                        RENDER_AT_MARK, //
+                });
     }
 
     private EmdrosClient emdrosClient = new EmdrosClient();
@@ -211,6 +219,17 @@ public class MqlResource
         {
             XmlMqlResultProducer producer = new XmlMqlResultProducer();
             producer.setIndent(2);
+            return new MQLResultStream(mqlResult, producer);
+        }
+        else if (RESULT_FORMAT_MONADSET_XML.equalsIgnoreCase(resultFormat))
+        {
+            XmlMonadSetProducer producer = new XmlMonadSetProducer();
+            producer.setIndent(2);
+            return new MQLResultStream(mqlResult, producer);
+        }
+        else if (RESULT_FORMAT_MONADSET_CSV.equalsIgnoreCase(resultFormat))
+        {
+            CsvMonadSetProducer producer = new CsvMonadSetProducer();
             return new MQLResultStream(mqlResult, producer);
         }
         else

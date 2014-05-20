@@ -3,6 +3,7 @@ package nl.knaw.dans.shemdros.pro;
 import java.io.Flushable;
 import java.io.IOException;
 
+@Deprecated
 public class VerseSentenceOrderInterventionist implements Appendable, Flushable
 {
 
@@ -29,57 +30,83 @@ public class VerseSentenceOrderInterventionist implements Appendable, Flushable
     @Override
     public Appendable append(CharSequence csq) throws IOException
     {
-        String xml = csq.toString();
+        String xml = csq.toString().trim();
         if (xml.startsWith("<v "))
         {
-            verseStart = csq;
-            writeStart();
-            return this;
+            verseStart = xml;
+            writeStartVerse();
         }
         else if (xml.startsWith("<s "))
         {
-            sentenceStart = csq;
-            writeStart();
-            return this;
+            sentenceStart = xml;
+            writeStartVerse();
         }
         else if (xml.startsWith("</v>"))
         {
-            verseEnd = csq;
-            writeEnd();
-            return this;
+            verseEnd = xml;
+            writeEndVerse();
         }
         else if (xml.startsWith("</s>"))
         {
-            sentenceEnd = csq;
-            writeEnd();
-            return this;
+            sentenceEnd = xml;
+            writeEndVerse();
+        }
+        else if (xml.length() < 3)
+        {
+
         }
         else
         {
+            writeStartSentence();
             wrapped.append(csq);
+            writeEndSentence();
         }
         return this;
     }
 
-    private void writeStart() throws IOException
+    private void writeStartVerse() throws IOException
     {
         if (verseStart != null && sentenceStart != null)
         {
             wrapped.append(verseStart);
-            wrapped.append("\n").append(sentenceStart);
+            wrapped.append("\n");
+            wrapped.append(sentenceStart);
+            wrapped.append("\n");
             verseStart = null;
             sentenceStart = null;
         }
     }
 
-    private void writeEnd() throws IOException
+    private void writeEndVerse() throws IOException
     {
         if (sentenceEnd != null && verseEnd != null)
         {
             wrapped.append(sentenceEnd);
-            wrapped.append("\n").append(verseEnd);
+            wrapped.append("\n");
+            wrapped.append(verseEnd);
+            wrapped.append("\n");
             sentenceEnd = null;
             verseEnd = null;
+        }
+    }
+
+    private void writeStartSentence() throws IOException
+    {
+        if (sentenceStart != null)
+        {
+            wrapped.append(sentenceStart);
+            wrapped.append("\n");
+            sentenceStart = null;
+        }
+    }
+
+    private void writeEndSentence() throws IOException
+    {
+        if (sentenceEnd != null)
+        {
+            wrapped.append(sentenceEnd);
+            // wrapped.append("\n");
+            sentenceEnd = null;
         }
     }
 

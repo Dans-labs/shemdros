@@ -30,17 +30,17 @@ public class CmdRenderObjects
 
     public String getContextPart(int fm, int lm) throws IOException
     {
-        StringBuilder sb = buildContextPartCommand(fm, lm);
+        StringBuilder sb = buildContextArguments(fm, lm);
         return executeCommand(sb.toString());
     }
 
     public void getContextPart(int fm, int lm, Appendable out) throws IOException
     {
-        StringBuilder sb = buildContextPartCommand(fm, lm);
+        StringBuilder sb = buildContextArguments(fm, lm);
         executeCommand(sb.toString(), out);
     }
 
-    private StringBuilder buildContextPartCommand(int fm, int lm)
+    protected StringBuilder buildContextArguments(int fm, int lm)
     {
         StringBuilder sb = new StringBuilder();
         appendDBInfo(sb);

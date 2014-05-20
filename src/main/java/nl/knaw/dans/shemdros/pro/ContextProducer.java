@@ -212,9 +212,12 @@ public abstract class ContextProducer implements StreamingMqlResultConsumer
         FocusInterventionist focusProducer = new FocusInterventionist(buffer, focusElementPart);
         focusProducer.setFocusList(getFocusMonadSets());
 
-        VerseSentenceOrderInterventionist orderInterventionist = new VerseSentenceOrderInterventionist(focusProducer);
+        // VerseSentenceOrderInterventionist orderInterventionist = new
+        // VerseSentenceOrderInterventionist(focusProducer);
 
-        out = orderInterventionist;
+        // out = orderInterventionist;
+
+        out = focusProducer;
     }
 
     protected CmdRenderObjects getRo()
