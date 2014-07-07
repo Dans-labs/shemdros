@@ -112,7 +112,9 @@ public class CsvMonadSetProducer implements StreamingMqlResultConsumer
         {
             MonadSetElement mse = iter.next();
             StringBuilder sb = new StringBuilder();
-            sb.append(mse.first()).append(Shemdros.CSV_SEPERATOR).append(mse.last()).append(Shemdros.CSV_SEPERATOR).append("\n");
+            sb.append(mse.first()).append(Shemdros.CSV_SEPERATOR) //
+                    .append(mse.last()).append(Shemdros.CSV_SEPERATOR) //
+                    .append("\n");
             getOutput().write(sb.toString().getBytes());
         }
     }

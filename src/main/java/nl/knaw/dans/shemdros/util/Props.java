@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.Properties;
 
 import org.slf4j.Logger;
@@ -43,7 +44,16 @@ public class Props implements Serializable
 
     private void logInstantiation()
     {
-        logger.debug("Instantiated new properties for " + this.getClass().getName() + ". file location=" + getFileLocation().getAbsolutePath());
+        File propFile = getFileLocation().getAbsoluteFile();
+        if (!propFile.exists())
+        {
+            logger.debug("Instantiated new properties for " + this.getClass().getName() + ". url=" + this.getClass().getClassLoader().getResource(location));
+        }
+        else
+        {
+            logger.debug("Instantiated new properties for " + this.getClass().getName() + ". file location=" + getFileLocation().getAbsolutePath());
+        }
+
     }
 
     /**
@@ -251,8 +261,16 @@ public class Props implements Serializable
         {
             try
             {
-                logger.debug("Trying to load properties from " + getFileLocation().getAbsolutePath());
-                properties = loadProperties(getLocation());
+                File propFile = getFileLocation().getAbsoluteFile();
+                if (!propFile.exists())
+                {
+                    properties = loadProperties(this.getClass().getClassLoader().getResource(location));
+                }
+                else
+                {
+                    logger.debug("Trying to load properties from " + getFileLocation().getAbsolutePath());
+                    properties = loadProperties(getLocation());
+                }
             }
             catch (IOException e)
             {
@@ -293,6 +311,25 @@ public class Props implements Serializable
         try
         {
             inStream = new FileInputStream(location);
+            props.load(inStream);
+        }
+        finally
+        {
+            if (inStream != null)
+            {
+                inStream.close();
+            }
+        }
+        return props;
+    }
+
+    private static Properties loadProperties(URL url) throws IOException
+    {
+        Properties props = new Properties();
+        InputStream inStream = null;
+        try
+        {
+            inStream = url.openStream();
             props.load(inStream);
         }
         finally

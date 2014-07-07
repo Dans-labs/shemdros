@@ -13,6 +13,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import nl.knaw.dans.shemdros.core.Build;
+import nl.knaw.dans.shemdros.core.CmdMql;
 import nl.knaw.dans.shemdros.core.EmdrosFactory;
 import nl.knaw.dans.shemdros.core.JsonFile;
 import nl.knaw.dans.shemdros.core.Shemdros;
@@ -40,6 +42,19 @@ public class ShemdrosResource
         return Response.ok("Methods for querying an Emdros database. " //
                 + "See <a href=\"" + href + "\">application.wadl</a> for details") //
                 .encoding(Shemdros.DEFAULT_CHARACTER_ENCODING)//
+                .build();
+    }
+
+    @GET
+    @Path("version")
+    @Produces(MediaType.TEXT_PLAIN + Shemdros.DEFAULT_CHARSET)
+    public Response getVersion()
+    {
+        logger.debug("recieved GET version.");
+        CmdMql cmdMql = new CmdMql();
+        Build build = new Build();
+
+        return Response.ok(build.toString() + "\n" + cmdMql.getVersionString()).encoding(Shemdros.DEFAULT_CHARACTER_ENCODING)//
                 .build();
     }
 
