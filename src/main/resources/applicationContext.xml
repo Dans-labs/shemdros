@@ -34,13 +34,15 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 		<property name="password" value=""/>
 		<property name="initialDB" value="/data/emdros/wivu/s3/bhs3"/>
 	</bean>
-	
+
+<!--  	
 	<bean class="nl.knaw.dans.shemdros.core.JsonFile" name="defaultJF">
 		<constructor-arg value="default"/>
 		<constructor-arg value="/opt/shemdros/resources/fetchinfo2.json"/>
 		<property name="focusElementPart" value="&lt;w fm="/>
 		
 	</bean>
+-->
 	
 	<bean class="nl.knaw.dans.shemdros.core.EmdrosFactory" name="emdrosFactory">
 		<property name="databases">
@@ -49,11 +51,13 @@ http://www.springframework.org/schema/context/spring-context.xsd">
 				<ref bean="otherDB"/>
 			</list>
 		</property>
+		<!--  
 		<property name="jsonFiles">
 			<list>
 				<ref bean="defaultJF"/>
 			</list>
 		</property>
+		-->
 	</bean>
 
     <bean class="nl.knaw.dans.shemdros.web.exc.ShemdrosExceptionMapper" name="shemdrosexceptionmapper">
