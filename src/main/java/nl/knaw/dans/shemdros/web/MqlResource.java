@@ -113,7 +113,7 @@ public class MqlResource
             String database, //
             @QueryParam("result-format")
             @DefaultValue(RESULT_FORMAT_MQL_XML)
-            String resultFormat) throws ShemdrosException
+            String resultFormat) throws Exception
     {
         logger.debug("recieved POST query, result-format={}", resultFormat);
         // logger.debug("query is '{}'", query);
@@ -147,7 +147,7 @@ public class MqlResource
             int offsetFirst, //
             @QueryParam("offset-last")
             @DefaultValue("0")
-            int offsetLast) throws ShemdrosException
+            int offsetLast) throws Exception
     {
         logger.debug("recieved POST render, renderer={}", renderer);
         MQLResult mqlResult = emdrosClient.execute(database, query, new DefaultMQLResultConsumer());
@@ -185,7 +185,7 @@ public class MqlResource
             int offsetFirst, //
             @QueryParam("offset-last")
             @DefaultValue("0")
-            int offsetLast) throws ShemdrosException
+            int offsetLast) throws Exception
     {
         logger.debug("recieved POST execute, result-format={}, renderer={}", resultFormat, renderer);
         MQLResult mqlResult = emdrosClient.execute(database, query, new DefaultMQLResultConsumer());

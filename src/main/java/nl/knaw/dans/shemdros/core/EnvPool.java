@@ -81,10 +81,17 @@ public class EnvPool
     {
         synchronized (pool)
         {
-            wrapper.setBusy(false);
-            while (pool.size() > database.getMaxPoolSize())
+            if (wrapper.isObsolete())
             {
-                pool.remove(0);
+                pool.remove(wrapper);
+            }
+            else
+            {
+                wrapper.setBusy(false);
+                while (pool.size() > database.getMaxPoolSize())
+                {
+                    pool.remove(0);
+                }
             }
         }
     }

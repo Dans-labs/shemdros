@@ -17,6 +17,7 @@ public class EnvWrapper
     private final EmdrosEnv env;
     private final String databaseName;
     private boolean busy;
+    private boolean obsolete;
 
     public EnvWrapper(EmdrosEnv env, String databaseName)
     {
@@ -39,6 +40,16 @@ public class EnvWrapper
         this.busy = busy;
         env.clearErrors();
         env.clean();
+    }
+
+    public boolean isObsolete()
+    {
+        return obsolete;
+    }
+
+    public void setObsolete(boolean obsolete)
+    {
+        this.obsolete = obsolete;
     }
 
     public EmdrosEnv getEnv()

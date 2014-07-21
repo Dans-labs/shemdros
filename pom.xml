@@ -11,7 +11,7 @@
 	<groupId>nl.knaw.dans</groupId>
 	<artifactId>shemdros</artifactId>
 	<packaging>war</packaging>
-	<version>1.0</version>
+	<version>1.0.1</version>
 	<name>emdros-api</name>
 	<description>web-serving the emdros api</description>
 
