@@ -8,22 +8,17 @@ import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.OutputStream;
 
-import nl.knaw.dans.shemdros.core.Database;
 import nl.knaw.dans.shemdros.core.EmdrosClient;
-import nl.knaw.dans.shemdros.core.JsonFile;
 import nl.knaw.dans.shemdros.integration.EnvironmentTest;
-import nl.knaw.dans.shemdros.integration.IntegrationTest;
 
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Category(IntegrationTest.class)
-public class LevelContextProducerTest extends EnvironmentTest
+public class CsvMonadSetProducerTest extends EnvironmentTest
 {
 
-    private static final Logger logger = LoggerFactory.getLogger(LevelContextProducerTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(CsvMonadSetProducerTest.class);
 
     @Test
     public void testAllQueries() throws Exception
@@ -44,42 +39,35 @@ public class LevelContextProducerTest extends EnvironmentTest
     }
 
     @Test
-    public void testSingleQuery() throws Exception
-    {
-        File queryFile = new File("src/test/resources/queries/bh_lq01.mql");
-        testProduction(queryFile);
-    }
-
-    @Test
     public void testNoYieldQuery() throws Exception
     {
         File queryFile = new File("src/test/resources/queries/no_yield_query.mql");
         testProduction(queryFile);
     }
 
-    public void testProduction(File queryFile) throws Exception
+    public boolean testProduction(File queryFile) throws Exception
     {
+        boolean executed = false;
         String name = queryFile.getName().replace('.', '_');
-        OutputStream output = new FileOutputStream("target/" + name + "-levelcontext.xml");
+        OutputStream output = new FileOutputStream("target/" + name + "-monadset.csv");
 
-        LevelContextProducer lc = new LevelContextProducer(Database.DEFAULT_DATABASE_NAME, JsonFile.DEFAULT);
-        lc.setOffsetFirst(2);
-        lc.setOffsetLast(4);
-        lc.setContextLevel(0);
-        lc.setOutputStream(output);
+        CsvMonadSetProducer cmp = new CsvMonadSetProducer();
+        cmp.setOutputStream(output);
 
         try
         {
-            new EmdrosClient().execute(queryFile, lc);
+            new EmdrosClient().execute(queryFile, cmp);
+            executed = true;
         }
         catch (Exception e)
         {
-            logger.debug("Caught Exception: " + e.getMessage());
+            logger.debug("Caught Exception: " + e + "\n\n" + e.getMessage());
         }
         finally
         {
             output.close();
         }
+        return executed;
     }
 
 }

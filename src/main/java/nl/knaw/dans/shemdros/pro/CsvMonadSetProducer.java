@@ -44,7 +44,8 @@ public class CsvMonadSetProducer implements StreamingMqlResultConsumer
             Sheaf sheaf = mqlResult.getSheaf();
             if (sheaf.isFail())
             {
-                throw new ShemdrosException("Unsuccessful query.");
+                logger.debug("=========> mqlResult is Sheaf, sheaf is fail.");
+                // throw new ShemdrosException("Sheaf failed. Unsuccessful query.");
             }
             try
             {

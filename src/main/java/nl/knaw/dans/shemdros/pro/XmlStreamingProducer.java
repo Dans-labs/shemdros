@@ -136,7 +136,10 @@ public abstract class XmlStreamingProducer implements StreamingMqlResultConsumer
         writer.writeCharacters(nl);
         writer.writeCharacters(ident);
         writer.writeEmptyElement("status");
-        writer.writeAttribute("success", "" + !sheaf.isFail());
+
+        // when we've got this far success is true
+        writer.writeAttribute("success", "true");
+        // writer.writeAttribute("success", "" + !sheaf.isFail());
     }
 
     @Override

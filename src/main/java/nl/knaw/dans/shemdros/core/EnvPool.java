@@ -81,7 +81,7 @@ public class EnvPool
     {
         synchronized (pool)
         {
-            if (wrapper.isObsolete())
+            if (wrapper.isObsolete() || !wrapper.getEnv().connectionOk())
             {
                 pool.remove(wrapper);
             }

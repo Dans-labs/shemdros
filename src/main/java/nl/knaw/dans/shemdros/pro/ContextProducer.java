@@ -80,7 +80,8 @@ public abstract class ContextProducer implements StreamingMqlResultConsumer
     {
         if (sheaf.isFail())
         {
-            throw new ShemdrosException("Cannot render sheaf: sheaf failed");
+            logger.debug("=========> mqlResult is Sheaf, sheaf is fail.");
+            // throw new ShemdrosException("Cannot render sheaf: sheaf failed");
         }
 
         try

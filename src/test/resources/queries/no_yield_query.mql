@@ -1,0 +1,6 @@
+select all objects
+in {1-500001}
+where
+[subphrase
+    [word focus lexeme ~ "xxx<LH\["]
+]

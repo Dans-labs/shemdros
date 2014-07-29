@@ -1,12 +1,15 @@
 package nl.knaw.dans.shemdros.pro;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.io.OutputStream;
 
 import nl.knaw.dans.shemdros.core.EmdrosClient;
 import nl.knaw.dans.shemdros.core.ShemdrosCompileException;
+import nl.knaw.dans.shemdros.core.ShemdrosException;
 import nl.knaw.dans.shemdros.integration.EnvironmentTest;
 import nl.knaw.dans.shemdros.integration.IntegrationTest;
 
@@ -48,22 +51,35 @@ public class XmlMqlResultProducerTest extends EnvironmentTest
         new File("target/mql-results").mkdirs();
         for (File query : queries)
         {
-            String name = query.getName().replaceAll(".mql", "");
-            OutputStream out = new FileOutputStream("target/mql-results/" + name + "-result.xml");
-            XmlMqlResultProducer producer = new XmlMqlResultProducer(out);
-            producer.setIndent(2);
-            try
-            {
-                new EmdrosClient().execute(query, producer);
-            }
-            catch (ShemdrosCompileException e)
-            {
-                logger.debug("Invalid query: " + query.getName() + " " + e.getMessage());
-            }
-            finally
-            {
-                out.close();
-            }
+            testProduction(query);
+        }
+    }
+
+    @Test
+    public void testNoYieldQuery() throws Exception
+    {
+        new File("target/mql-results").mkdirs();
+        File queryFile = new File("src/test/resources/queries/no_yield_query.mql");
+        testProduction(queryFile);
+    }
+
+    private void testProduction(File query) throws FileNotFoundException, ShemdrosException, Exception, IOException
+    {
+        String name = query.getName().replaceAll(".mql", "");
+        OutputStream out = new FileOutputStream("target/mql-results/" + name + "-result.xml");
+        XmlMqlResultProducer producer = new XmlMqlResultProducer(out);
+        producer.setIndent(2);
+        try
+        {
+            new EmdrosClient().execute(query, producer);
+        }
+        catch (ShemdrosCompileException e)
+        {
+            logger.debug("Invalid query: " + query.getName() + " " + e.getMessage());
+        }
+        finally
+        {
+            out.close();
         }
     }
 
