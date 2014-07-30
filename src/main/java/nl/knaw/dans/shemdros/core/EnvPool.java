@@ -62,6 +62,14 @@ public class EnvPool
                     break;
                 }
             }
+            // test database connectivity...
+            if (envWrapper != null && !envWrapper.connectionOk())
+            {
+                pool.remove(envWrapper);
+                logger.warn("Removed EnvWrapper from pool. Connection failure. (1)");
+                envWrapper = null;
+            }
+
             if (envWrapper == null)
             {
                 EmdrosEnv env = getEmdrosEnv(eOutputKind.swigToEnum(database.getOutputKind()),//
@@ -71,6 +79,7 @@ public class EnvPool
                         eBackendKind.swigToEnum(database.getBackendKind()));
                 envWrapper = new EnvWrapper(env, database.getName());
                 pool.add(envWrapper);
+                logger.info("Added EnvWrapper to pool. Pool size is " + pool.size());
             }
             envWrapper.setBusy(true);
         }
@@ -81,16 +90,23 @@ public class EnvPool
     {
         synchronized (pool)
         {
-            if (wrapper.isObsolete() || !wrapper.getEnv().connectionOk())
+            if (wrapper.isObsolete())
             {
                 pool.remove(wrapper);
+                logger.warn("Removed EnvWrapper from pool. Obsolete");
+            }
+            else if (!wrapper.connectionOk())
+            {
+                pool.remove(wrapper);
+                logger.warn("Removed EnvWrapper from pool. Connection failure. (2)");
             }
             else
             {
                 wrapper.setBusy(false);
-                while (pool.size() > database.getMaxPoolSize())
+                if (pool.size() > database.getMaxPoolSize())
                 {
-                    pool.remove(0);
+                    pool.remove(wrapper);
+                    logger.info("Removed EnvWrapper from pool. Superfluous. Pool size is " + pool.size());
                 }
             }
         }

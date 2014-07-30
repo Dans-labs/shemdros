@@ -15,6 +15,16 @@ public class CmdMql
         try
         {
             version = getVersion();
+            // int tryCount = 0;
+            // while (StringUtils.isBlank(version) && tryCount < 5)
+            // {
+            // tryCount++;
+            // version = getVersion();
+            // }
+            // if (StringUtils.isBlank(version))
+            // {
+            // version = "MQL version information could not be obtained this time.";
+            // }
         }
         catch (IOException e)
         {
@@ -25,7 +35,8 @@ public class CmdMql
 
     public String getVersion() throws IOException
     {
-        return executeCommand("--version");
+        // return executeCommand("--version");
+        return process("--version");
     }
 
     protected String executeCommand(String cmd) throws IOException
@@ -33,7 +44,11 @@ public class CmdMql
         StringWriter sout = new StringWriter();
         PrintWriter pout = new PrintWriter(sout);
         executeCommand(cmd, pout);
-        return sout.toString();
+        pout.flush();
+        sout.flush();
+        String value = sout.toString();
+        pout.close();
+        return value;
     }
 
     protected void executeCommand(String cmd, Appendable out) throws IOException
@@ -42,10 +57,17 @@ public class CmdMql
         PrintWriter perr = new PrintWriter(serr);
         String command = "mql " + cmd;
         OS.execAndWait(command, out, perr);
+        perr.flush();
         if (serr.toString().length() != 0)
         {
             throw new IOException("Executing command line returned error message: " + serr.toString());
         }
+        perr.close();
+    }
+
+    protected String process(String cmd) throws IOException
+    {
+        return OS.process("mql", cmd);
     }
 
 }

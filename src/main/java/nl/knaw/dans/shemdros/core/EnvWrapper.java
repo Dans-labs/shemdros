@@ -52,6 +52,11 @@ public class EnvWrapper
         this.obsolete = obsolete;
     }
 
+    public boolean connectionOk()
+    {
+        return env.connectionOk();
+    }
+
     public EmdrosEnv getEnv()
     {
         if (!busy)

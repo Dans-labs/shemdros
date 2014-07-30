@@ -1,7 +1,9 @@
 package nl.knaw.dans.shemdros.os;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 
 import org.slf4j.Logger;
@@ -88,6 +90,44 @@ public class OS
             throw new IOException("Interrupted: ", e);
         }
         return exitValue;
+    }
+
+    public static String process(String... cmd) throws IOException
+    {
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        Process process = pb.start();
+
+        BufferedReader bri = new BufferedReader(new InputStreamReader(process.getInputStream()));
+        BufferedReader bre = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+
+        String line;
+        StringBuilder sbi = new StringBuilder();
+        while ((line = bri.readLine()) != null)
+        {
+            sbi.append(line).append("\n");
+        }
+        bri.close();
+
+        StringBuilder sbe = new StringBuilder();
+        while ((line = bre.readLine()) != null)
+        {
+            sbe.append(line).append("\n");
+        }
+        bre.close();
+        try
+        {
+            process.waitFor();
+        }
+        catch (InterruptedException e)
+        {
+            throw new IOException("Interrupted: ", e);
+        }
+
+        if (!"".equals(sbe.toString()))
+        {
+            throw new IOException("Process exception: " + sbe.toString());
+        }
+        return sbi.toString();
     }
 
     /**
